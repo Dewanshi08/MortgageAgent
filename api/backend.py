@@ -22,7 +22,7 @@ class MockBackend:
 
     def _seed_knowledge(self):
         """Seed with essential topics for mock mode."""
-        from knowledge import EMBEDDED_TOPICS
+        from api.knowledge import EMBEDDED_TOPICS
         self.knowledge = EMBEDDED_TOPICS
 
     # ── Users ──

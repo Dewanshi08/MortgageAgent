@@ -1,5 +1,6 @@
 import os
 import uuid
+import uvicorn
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -20,7 +21,7 @@ from ai.llm_client import get_llm_response
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize backend on startup."""
-    app.state.backend = get_backend()
+    # app.state.backend = get_backend()
     use_mock = os.getenv("USE_MOCK_BACKEDN", "true").lower() == "true"
     mock = "MOCK" if use_mock else "LAKEBASE"
     print(f"Mortgage agent MVP started. Backend")
@@ -201,4 +202,8 @@ if os.path.exists("ui"):
 else:
     @app.get("/")
     async def root():
-        return {"message": "Nope MVP API", "docs": "/docs"}
+        return {"message": "Mortgage Agent MVP API", "docs": "/docs"}
+    
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)

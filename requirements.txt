@@ -12,3 +12,5 @@ typing-extensions==4.15.0
 typing-inspection==0.4.2
 uvicorn==0.41.0
 uv==0.10.8
+databricks-sql-connector
+databricks-sdk

@@ -1,3 +1,8 @@
+"""
+Mortgage Agent MVP - FastAPI Application
+Databricks App entrypoint: uvicorn app:app --host 0.0.0.0 --port 8000
+"""
+
 import os
 import uuid
 import uvicorn
@@ -5,28 +10,27 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from models.model import (
-    ChatRequest, ChatResponse, ContextRequest, ContextResponse, AnalyzeRequest, AnalyzeResponse, HealthResponse, TopicOut, AgreementStatus
+    ChatRequest, ChatResponse, ContextRequest, ContextResponse,
+    AnalyzeRequest, AnalyzeResponse, HealthResponse, TopicOut,
+    AgreementStatus,
 )
-
 from api.backend import get_backend
 from api.knowledge import build_system_prompt
 from ai.llm_client import get_llm_response
 
 # -- Lifespan --
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize backend on startup."""
-    # app.state.backend = get_backend()
-    use_mock = os.getenv("USE_MOCK_BACKEDN", "true").lower() == "true"
-    mock = "MOCK" if use_mock else "LAKEBASE"
-    print(f"Mortgage agent MVP started. Backend")
+    app.state.backend = get_backend()
+    use_mock = os.getenv("USE_MOCK_BACKEND", "false").lower() == "true"
+    mode = "MOCK" if use_mock else "SQL_WAREHOUSE"
+    print(f"Mortgage Agent MVP started. Backend: {mode}")
     yield
-    print("Mortgage agent MVP stopped.")
+    print("Mortgage Agent MVP shutting down.")
 
 
 app = FastAPI(
@@ -47,20 +51,19 @@ def backend():
 
 
 # -- Health --
-
 @app.get("/api/health", response_model=HealthResponse)
 async def health():
-    use_mock = os.getenv("USE_MOCK_BACKEND", "true").lower() == "true"
-    has_llm = bool(os.getenv("SERVING_ENDPOINT_NAME") or os.getenv("ANTHROPIC_API_KEY"))
+    use_mock = os.getenv("USE_MOCK_BACKEND", "false").lower() == "true"
+    has_llm = bool(os.getenv("MODEL_ENDPOINT"))
     return HealthResponse(
         status="healthy",
         version="0.1.0",
-        database="mock" if use_mock else "lakebase",
-        llm="configured" if has_llm else "not configured",
+        database="mock" if use_mock else "sql_warehouse",
+        llm="configured" if has_llm else "fallback",
     )
 
-# ── Context (User Profile) ──
 
+# -- Context (User Profile / Onboarding) --
 @app.post("/api/context", response_model=ContextResponse)
 async def set_context(req: ContextRequest):
     db = backend()
@@ -74,27 +77,29 @@ async def set_context(req: ContextRequest):
     else:
         db.create_user(user_id=uid, **profile_data)
 
-    # Calculate basic affordability estimate
     estimate = None
     if req.income and req.dp_amount:
         stress_rate = 0.0725
         max_gds = 0.39
         monthly_income = req.income / 12
         max_monthly_housing = monthly_income * max_gds
-        max_mortgage = max_monthly_housing * 12 / stress_rate * (1 - (1 + stress_rate/12)**(-300))
-        # Simplified: use basic annuity calc
-        est_max_price = min(max_mortgage + req.dp_amount, req.dp_amount / 0.05 if req.dp_amount else 0)
+        # simplified annuity approximation
+        n_months = 300  # 25 year amortization
+        r_monthly = stress_rate / 12
+        annuity_factor = (1 - (1 + r_monthly) ** (-n_months)) / r_monthly
+        max_mortgage = max_monthly_housing * annuity_factor
+        est_max_price = max_mortgage + req.dp_amount
         estimate = {
             "estimated_max_mortgage": round(max_mortgage, 0),
             "estimated_max_price": round(est_max_price, 0),
             "stress_test_rate": stress_rate,
-            "note": "This is a rough estimate. Actual qualification depends on full application.",
+            "note": "Rough estimate. Actual qualification depends on full application.",
         }
 
     return ContextResponse(user_id=uid, affordability_estimate=estimate)
 
-# ── Chat ──
 
+# -- Chat --
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     db = backend()
@@ -117,7 +122,7 @@ async def chat(req: ChatRequest):
     # Find relevant knowledge topics
     relevant = db.search_topics(req.message, limit=3)
 
-    # Build conversation history
+    # Builde conversation history
     history = db.get_messages(sid, limit=10)
     messages = [{"role": m["role"], "content": m["content"]} for m in history]
     if not any(m["content"] == req.message for m in messages):
@@ -158,21 +163,18 @@ async def chat(req: ChatRequest):
         tokens_used=llm_result.get("tokens_used"),
     )
 
-# ── Agreement Analysis (Stub) ──
-
+# -- Agreement Analysis (Phase 2 stub) --
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze_agreement(req: AnalyzeRequest):
-    """Stub for APS clause analysis. Phase 2 feature."""
     agreement_id = str(uuid.uuid4())[:12]
     return AnalyzeResponse(
         agreement_id=agreement_id,
         status=AgreementStatus.PENDING,
         clauses=[],
-        risk_summary={"note": "Agreement analysis is under development. Check back soon."},
+        risk_summary={"note": "Agreement analysis is under development."},
     )
 
-# ── Topics listing ──
-
+# -- Topics listing --
 @app.get("/api/topics")
 async def list_topics():
     db = backend()
@@ -191,8 +193,7 @@ async def list_topics():
         ],
     }
 
-# ── Serve frontend (if ui/ directory exists) ──
-
+# -- Serve frontend if ui/ exists --
 if os.path.exists("ui"):
     app.mount("/ui", StaticFiles(directory="ui", html=True), name="ui")
 

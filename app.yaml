@@ -7,5 +7,20 @@ APP_YAML = """command:
   - "8080"
 
 env:
+  # SQL warehouse for querying Delta tables (required)
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: sql-warehouse
+
+  # Model serving endpoint for LLM (optional -- falls back to knowledge-only)
+  - name: MODEL_ENDPOINT
+    valueFrom: serving-endpoint
+  
+  # Catalog and schema for Delta tables
+  - name: CATALOG
+    value: "workspace"
+  - name: SCHEMA
+    value: "mortgage_agent"
+  
+  # Set to "true" for local testing without warehouse
   - name: USE_MOCK_BACKEND
     value: "false"

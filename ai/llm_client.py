@@ -1,86 +1,114 @@
+"""
+Mortgage Agent MVP - LLM Client
+
+Calls Foundation Model API endpoints via Databricks SDK.
+Set MODEL_ENDPOINT to whichever endpoint is available in your workspace Serving tab.
+
+To check available models:
+  1. Open your Databricks workspace
+  2. Click "Serving" in the left sidebar
+  3. Foundation Model API endpoints are listed at the top
+  4. Copy the exact endpoint name (e.g. "databricks-gpt-oss-20b")
+"""
+
 import os
-import json
-from typing import Optional
+import logging
+from databricks.sdk.core import Config
+import requests
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger("llm_client")
 
 
-# ── Strategy 1: Databricks Foundation Model API (preferred on Databricks) ──
+# Set this to the endpoint name visible in your Serving tab.
+# Leave empty to use knowledge-base-only fallback.
+MODEL_ENDPOINT = os.getenv("MODEL_ENDPOINT", "")
+
+if MODEL_ENDPOINT:
+    logger.info(f"Using Foundation Model API endpoint: {MODEL_ENDPOINT}")
+else:
+    MODEL_ENDPOINT = "databricks-gpt-oss-20b"
+    logger.info("No Foundation Model API endpoint configured.")
+
 
 def call_foundation_model(
     messages: list[dict],
     system_prompt: str,
-    model: str = "databricks-claude-sonnet-4-5",
-    max_tokens: int = 1500,
-    temperature: float = 0.7,
+    max_tokens: int,
+    temperature: float,
 ) -> dict:
-    """Call Claude via Databricks Foundation Model API endpoint."""
-    from databricks.sdk import WorkspaceClient
-
-    w = WorkspaceClient()
+    """
+    Call Foundation Model API using direct REST + Config() auth.
+    Returns plain dicts -- no SDK dataclass serialization issues.
+    """
+    cfg = Config()
+    auth_headers = cfg.authenticate()
+    
     full_messages = [{"role": "system", "content": system_prompt}] + messages
-
-    response = w.serving_endpoints.query(
-        name=model,
-        messages=full_messages,
-        max_tokens=max_tokens,
-        temperature=temperature,
-    )
-
-    content = response.choices[0].message.content if response.choices else ""
+    
+    url = f"{cfg.host}/serving-endpoints/{MODEL_ENDPOINT}/invocations"
+    
+    resp = requests.post(
+        url,
+        headers={
+            **auth_headers,
+            "Content-Type": "application/json",
+        },
+        json={
+            "messages": full_messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        },
+        timeout=60,
+        )
+    if resp.status_code != 200:
+        raise RuntimeError(
+            f"Model serving returned {resp.status_code}: {resp.text[:500]}"
+        )
+        
+    data = resp.json()
+    
+    content = ""
     tokens = 0
-    if hasattr(response, "usage") and response.usage:
-        tokens = getattr(response.usage, "total_tokens", 0)
+    
+    choices = data.get("choices", [])
+    if choices:
+        msg = choices[0].get("message", {})
+        raw_content = msg.get("content", "")
+        
+        # Some models (e.g. databricks-gpt-oss-20b) return content as a list
+        # of blocks with types like "reasoning" and "text" instead of a plain string.
+        if isinstance(raw_content, str):
+            content = raw_content
+        elif isinstance(raw_content, list):
+            # Extract only the actual text blocks, skip reasoning/thinking blocks
+            text_parts = []
+            for block in raw_content:
+                if isinstance(block, dict):
+                    if block.get("type") == "text":
+                        text_parts.append(block.get("text", ""))
+                elif isinstance(block, str):
+                    text_parts.append(block)
+            content = "\n".join(text_parts)
+        else:
+            content = str(raw_content)
+    
+    usage = data.get("usage", {})
+    tokens = usage.get("total_tokens", 0)
 
     return {"content": content, "tokens_used": tokens}
-
-
-# ── Strategy 2: Direct Anthropic SDK (fallback / local dev) ──
-
-def call_anthropic_direct(
-    messages: list[dict],
-    system_prompt: str,
-    max_tokens: int = 1500,
-    temperature: float = 0.7,
-) -> dict:
-    """Call Claude via direct Anthropic API."""
-    import anthropic
-
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        return {
-            "content": _knowledge_fallback(messages),
-            "tokens_used": 0,
-        }
-
-    client = anthropic.Anthropic(api_key=api_key)
-    response = client.messages.create(
-        model="claude-sonnet-4-5-20250929",
-        max_tokens=max_tokens,
-        temperature=temperature,
-        system=system_prompt,
-        messages=messages,
-    )
-
-    content = response.content[0].text if response.content else ""
-    tokens = response.usage.input_tokens + response.usage.output_tokens
-
-    return {"content": content, "tokens_used": tokens}
-
-
-# ── Strategy 3: Knowledge-base-only fallback ──
 
 def _knowledge_fallback(messages: list[dict]) -> str:
-    """Return a knowledge-base answer when no LLM is available."""
+    """Fallback when no LLM is configured."""
     last_msg = messages[-1]["content"] if messages else ""
     return (
-        f"I received your question about: \\'{last_msg[:100]}\\'. "
-        "I am currently running in knowledge-base-only mode (no LLM API configured). "
-        "To get full conversational responses, configure either ANTHROPIC_API_KEY "
-        "or a Databricks Foundation Model API endpoint. "
-        "In the meantime, check the relevant topics returned in this response."
+        f'I received your question about: "{last_msg[:100]}". '
+        "I am running in knowledge-base-only mode (no LLM endpoint configured). "
+        "Set the MODEL_ENDPOINT environment variable to a Foundation Model API "
+        "endpoint name from your Serving tab to enable full AI responses. "
+        "Check the relevant topics returned with this response for information."
     )
-
-
-# ── Unified interface ──
 
 def get_llm_response(
     messages: list[dict],
@@ -89,34 +117,15 @@ def get_llm_response(
     temperature: float = 0.7,
 ) -> dict:
     """
-    Get LLM response using best available strategy:
-    1. Databricks Foundation Model API (if on Databricks with serving endpoint)
-    2. Direct Anthropic SDK (if ANTHROPIC_API_KEY set)
-    3. Knowledge-base-only fallback
+    Get LLM response. Strategy:
+      1. Databricks Foundation Model API (if MODEL_ENDPOINT is set)
+      2. Knowledge-base-only fallback
     """
-    serving_endpoint = os.getenv("SERVING_ENDPOINT_NAME")
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-
-    if serving_endpoint:
+    if MODEL_ENDPOINT:
         try:
-            return call_foundation_model(
-                messages, system_prompt,
-                model=serving_endpoint,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
+            return call_foundation_model(messages, system_prompt, max_tokens, temperature)
         except Exception as e:
-            print(f"Foundation Model API failed: {e}, falling back to Anthropic SDK")
-
-    if anthropic_key:
-        try:
-            return call_anthropic_direct(
-                messages, system_prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-        except Exception as e:
-            print(f"Anthropic SDK failed: {e}, falling back to knowledge-base only")
+            logger.info(f"Foundation Model API error: {e}")
 
     return {
         "content": _knowledge_fallback(messages),

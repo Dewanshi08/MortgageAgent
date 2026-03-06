@@ -66,7 +66,6 @@ EMBEDDED_TOPICS = [
     },
 ]
 
-
 CATEGORY_LABELS = {
     "regulatory": "REGULATORY FRAMEWORK",
     "down_payment": "DOWN PAYMENT AND INSURANCE",
@@ -90,7 +89,7 @@ def build_system_prompt(topics: list[dict], user_profile: dict = None) -> str:
         sections[cat].append(t)
 
     lines = [
-        "You are Nope, an AI-powered home buyer advisor for the Canadian market.",
+        "You are Mortgage Agent, an AI-powered home buyer advisor for the Canadian market.",
         "You work for the buyer, not the lender. Your goal is to educate, protect, and empower.",
         "Company philosophy: nobody is a number.",
         "",

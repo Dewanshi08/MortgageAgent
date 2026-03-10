@@ -1,3 +1,11 @@
+"""
+own-ly MVP - Knowledge Base & System Prompt Builder
+
+Embedded mortgage topics and system prompt construction.
+Topics are loaded into MockBackend at startup and seeded into
+Delta tables for WarehouseBackend via a separate notebook.
+"""
+
 EMBEDDED_TOPICS = [
     {
         "id": "st01", "category": "regulatory", "title": "Mortgage Stress Test (B-20)",
@@ -89,9 +97,9 @@ def build_system_prompt(topics: list[dict], user_profile: dict = None) -> str:
         sections[cat].append(t)
 
     lines = [
-        "You are Mortgage Agent, an AI-powered home buyer advisor for the Canadian market.",
+        "You are own-ly, an AI-powered home buyer advisor for the Canadian market.",
         "You work for the buyer, not the lender. Your goal is to educate, protect, and empower.",
-        "Company philosophy: nobody is a number.",
+        "Company philosophy: own your dream.",
         "",
     ]
 
@@ -100,11 +108,17 @@ def build_system_prompt(topics: list[dict], user_profile: dict = None) -> str:
         if user_profile.get("name"):
             lines.append(f"Name: {user_profile['name']}")
         if user_profile.get("income"):
-            lines.append(f"Annual income: ${user_profile['income']:,.0f}")
+            income = user_profile["income"]
+            lines.append(f"Annual income: ${income:,.0f}" if isinstance(income, (int, float)) else f"Annual income: {income}")
         if user_profile.get("dp_amount"):
-            lines.append(f"Down payment: ${user_profile['dp_amount']:,.0f}")
+            dp = user_profile["dp_amount"]
+            lines.append(f"Down payment: ${dp:,.0f}" if isinstance(dp, (int, float)) else f"Down payment: {dp}")
         if user_profile.get("target_price"):
-            lines.append(f"Target price: ${user_profile['target_price']:,.0f}")
+            tp = user_profile["target_price"]
+            lines.append(f"Target price: ${tp:,.0f}" if isinstance(tp, (int, float)) else f"Target price: {tp}")
+        if user_profile.get("monthly_debts"):
+            md = user_profile["monthly_debts"]
+            lines.append(f"Monthly debt obligations: ${md:,.0f}" if isinstance(md, (int, float)) else f"Monthly debts: {md}")
         lines.append(f"Location: {user_profile.get('location', 'GTA')}, {user_profile.get('province', 'ON')}")
         lines.append(f"First-time buyer: {'Yes' if user_profile.get('is_first_time', True) else 'No'}")
         lines.append(f"Purchase type: {user_profile.get('purchase_type', 'pre-construction')}")
@@ -133,4 +147,4 @@ def build_system_prompt(topics: list[dict], user_profile: dict = None) -> str:
         "- Keep responses conversational but substantive",
     ])
 
-    return "\\n".join(lines)
+    return "\n".join(lines)

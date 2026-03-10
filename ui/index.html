@@ -3,1040 +3,572 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ownly - AI Home Buyer Advisor</title>
+  <title>own-ly | AI Home Buyer Advisor</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #060a10;
-      --surface: #0d1117;
-      --surface-alt: #151b26;
-      --surface-hover: #1a2233;
-      --border: #21293a;
-      --border-light: #2d3a50;
-      --accent: #4f9cf7;
-      --accent-dim: #1a3a6a;
-      --accent-glow: rgba(79, 156, 247, 0.12);
-      --teal: #0ea5a0;
-      --teal-dim: #0a3d3d;
-      --amber: #e5a93d;
-      --rose: #e5475b;
-      --text: #dfe6f0;
-      --text-dim: #7a8ba3;
-      --text-faint: #4a5568;
-      --radius: 10px;
-      --font-body: 'DM Sans', -apple-system, sans-serif;
-      --font-display: 'Fraunces', Georgia, serif;
-    }
+/* ═══ TOKENS ═══ */
+:root {
+  --bg:#f5f6fa;--surface:#ffffff;--surface-2:#f0f3f8;--surface-3:#e6ebf3;
+  --border:#dce2ed;--border-hover:#c4cedd;
+  --blue:#2563eb;--blue-light:#eff4ff;--blue-mid:#dbeafe;
+  --teal:#0d9488;--teal-light:#ecfdf5;--teal-mid:#ccfbf1;
+  --amber:#d97706;--amber-light:#fffbeb;
+  --coral:#dc2626;--coral-light:#fef2f2;
+  --violet:#7c3aed;--violet-light:#f5f3ff;
+  --pastel-sky:#e3f2fd;--pastel-sky-border:#bbdefb;
+  --pastel-mint:#e0f2f1;--pastel-mint-border:#b2dfdb;
+  --pastel-peach:#fff3e0;--pastel-peach-border:#ffe0b2;
+  --pastel-lavender:#ede7f6;--pastel-lavender-border:#d1c4e9;
+  --text:#1e293b;--text-2:#475569;--text-3:#94a3b8;
+  --font:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-display:'Fraunces',Georgia,serif;
+  --r:12px;--r-sm:8px;--r-lg:16px;--r-pill:100px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 14px rgba(0,0,0,0.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh;overflow:hidden;}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type="number"]{-moz-appearance:textfield;}
+.app{display:flex;height:100vh;}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ═══ SIDEBAR ═══ */
+.side{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(.4,0,.2,1);z-index:10;box-shadow:var(--shadow-sm);}
+.side.hide{transform:translateX(-300px);position:absolute;height:100vh;}
+.side-head{padding:22px 20px 14px;border-bottom:1px solid var(--border);}
+.side-brand{font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--blue);letter-spacing:-0.3px;}
+.side-sub{font-size:11px;color:var(--text-3);margin-top:2px;letter-spacing:0.5px;}
+.side-newchat{margin:14px 16px;padding:10px;background:var(--blue);border:none;border-radius:var(--r-sm);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);text-align:center;transition:all 0.15s;box-shadow:var(--shadow-sm);}
+.side-newchat:hover{opacity:0.9;box-shadow:var(--shadow);}
+.side-est{padding:0 20px 14px;border-bottom:1px solid var(--border);}
+.est-card{background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:var(--r-sm);padding:12px 14px;}
+.est-label{font-size:10px;font-weight:600;color:var(--teal);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;}
+.est-val{font-size:20px;font-weight:700;color:var(--teal);letter-spacing:-0.5px;}
+.est-detail{font-size:11px;color:var(--text-2);margin-top:4px;}
+.est-detail span{color:var(--coral);font-weight:600;}
+.journey{flex:1;overflow-y:auto;padding:6px 0;}
+.journey-label{font-size:9px;font-weight:700;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;padding:12px 20px 6px;}
+.stg{position:relative;padding:0 12px;}
+.stg-row{display:flex;align-items:flex-start;gap:12px;padding:10px;border-radius:var(--r-sm);cursor:pointer;transition:all 0.12s;}
+.stg-row:hover{background:var(--surface-2);}
+.stg-row.active{background:var(--blue-light);}
+.stg-row.locked{opacity:0.4;cursor:default;}
+.stg-row.locked:hover{background:transparent;}
+.stg-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:var(--surface);color:var(--text-3);transition:all 0.2s;}
+.stg-row.active .stg-icon{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.stg-row.done .stg-icon{border-color:var(--teal);background:var(--teal);color:#fff;}
+.stg-row.partial .stg-icon{border-color:var(--amber);color:var(--amber);background:var(--amber-light);}
+.stg-info{flex:1;min-width:0;padding-top:2px;}
+.stg-name{font-size:13px;font-weight:600;color:var(--text-2);}
+.stg-row.active .stg-name{color:var(--text);}
+.stg-desc{font-size:11px;color:var(--text-3);margin-top:1px;}
+.stg-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:4px;}
+.stg-badge.done{background:var(--teal-light);color:var(--teal);}
+.stg-badge.partial{background:var(--amber-light);color:var(--amber);}
+.stg-badge.new{background:var(--surface-2);color:var(--text-3);}
+.stg-badge.locked{background:var(--surface-2);color:var(--text-3);}
+.stg-connector{width:2px;height:8px;background:var(--border);margin:0 0 0 28px;}
+.stg-connector.done-line{background:var(--teal);}
+.topics{padding:2px 12px 8px;}
+.topic{padding:7px 12px 7px 56px;font-size:13px;color:var(--text-2);cursor:pointer;border-radius:6px;transition:all 0.12s;display:flex;align-items:center;gap:8px;}
+.topic:hover{background:var(--surface-2);color:var(--text);}
+.topic-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:2px solid var(--border);}
+.topic.covered .topic-dot{background:var(--teal);border-color:var(--teal);}
+.side-progress{padding:14px 20px;border-top:1px solid var(--border);}
+.prog-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px;font-weight:500;}
+.prog-track{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:2px;transition:width 0.5s ease;}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      height: 100vh;
-      overflow: hidden;
-    }
+/* ═══ MAIN ═══ */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg);}
+.top{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--surface);box-shadow:var(--shadow-sm);}
+.top-menu{background:none;border:none;color:var(--text-2);cursor:pointer;padding:6px;border-radius:6px;display:flex;}
+.top-menu:hover{background:var(--surface-2);}
+.top-title{font-size:15px;font-weight:600;flex:1;}
+.top-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+.top-status{font-size:12px;color:var(--teal);display:flex;align-items:center;gap:5px;font-weight:500;}
+.msgs-wrap{flex:1;overflow-y:auto;}
+.msgs{max-width:740px;margin:0 auto;padding:24px 20px;}
+.welcome{text-align:center;padding:48px 20px 32px;animation:rise 0.6s cubic-bezier(.4,0,.2,1);}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.welcome-badge{display:inline-block;padding:5px 14px;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:20px;font-size:11px;color:var(--blue);font-weight:600;margin-bottom:20px;}
+.welcome h1{font-family:var(--font-display);font-size:32px;font-weight:500;line-height:1.3;margin-bottom:10px;color:var(--text);}
+.welcome h1 em{font-style:normal;color:var(--blue);}
+.welcome p{color:var(--text-2);font-size:15px;max-width:420px;margin:0 auto 30px;line-height:1.65;}
+.quick-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:0 auto;}
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;text-align:left;transition:all 0.18s;box-shadow:var(--shadow-sm);}
+.qcard:hover{border-color:var(--blue-mid);box-shadow:var(--shadow);transform:translateY(-1px);}
+.qcard-icon{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-bottom:10px;}
+.qcard-text{font-size:13px;color:var(--text-2);line-height:1.45;}
+.qcard:hover .qcard-text{color:var(--text);}
+.mrow{display:flex;gap:12px;margin-bottom:24px;animation:rise 0.3s ease;}
+.mrow.usr{flex-direction:row-reverse;}
+.mav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.mav.ai{background:var(--blue-light);color:var(--blue);}
+.mav.usr{background:var(--teal-light);color:var(--teal);}
+.mbody{max-width:82%;min-width:0;}
+.mbub{padding:14px 18px;border-radius:var(--r);font-size:14px;line-height:1.7;word-wrap:break-word;box-shadow:var(--shadow-sm);}
+.mbub.ai{background:var(--surface);border:1px solid var(--border);}
+.mbub.usr{background:var(--blue);color:#fff;border:none;}
+.mbub.usr strong{color:#fff;}
+.mbub p{margin-bottom:10px;}.mbub p:last-child{margin-bottom:0;}
+.mbub strong{color:var(--blue);font-weight:600;}
+.mbub code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:13px;}
+.mbub ul,.mbub ol{margin:8px 0;padding-left:20px;}.mbub li{margin-bottom:4px;}
+.mbub table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.mbub th{background:var(--surface-2);color:var(--blue);font-weight:600;text-align:left;padding:8px 10px;border:1px solid var(--border);}
+.mbub td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;}
+.mbub h1,.mbub h2,.mbub h3,.mbub h4{margin:16px 0 8px;line-height:1.3;}
+.mbub h3{font-size:15px;color:var(--blue);}.mbub h4{font-size:14px;color:var(--teal);}
+.mbub h1:first-child,.mbub h2:first-child,.mbub h3:first-child{margin-top:0;}
+.mbub blockquote{border-left:3px solid var(--blue);margin:10px 0;padding:8px 14px;background:var(--blue-light);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--text-2);font-size:13px;}
+.mbub hr{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.mbub pre{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;overflow-x:auto;margin:10px 0;}
+.mbub pre code{background:none;padding:0;}
+.mtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.mtag{font-size:10px;padding:3px 8px;border-radius:10px;background:var(--blue-light);color:var(--blue);font-weight:500;}
+.mtime{font-size:10px;color:var(--text-3);margin-top:5px;padding:0 4px;}
+.mrow.usr .mtime{text-align:right;}
+.typing{display:flex;gap:12px;margin-bottom:24px;}
+.tdots{display:flex;gap:5px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:pulse 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:0.2s;}.tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,60%,100%{opacity:0.2}30%{opacity:1}}
+.inp-area{border-top:1px solid var(--border);padding:16px 20px;background:var(--surface);box-shadow:0 -1px 3px rgba(0,0,0,0.03);}
+.inp-wrap{max-width:740px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:4px 4px 4px 16px;transition:border-color 0.15s;}
+.inp-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-light);}
+.inp{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--font);resize:none;outline:none;line-height:1.5;max-height:120px;padding:8px 0;}
+.inp::placeholder{color:var(--text-3);}
+.sendbtn{width:38px;height:38px;border-radius:var(--r-sm);border:none;background:var(--blue);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;box-shadow:var(--shadow-sm);}
+.sendbtn:disabled{opacity:0.3;cursor:default;}
+.sendbtn:not(:disabled):hover{box-shadow:var(--shadow);}
+.sendbtn svg{width:15px;height:15px;}
+.inp-hint{max-width:740px;margin:6px auto 0;font-size:11px;color:var(--text-3);text-align:center;}
 
-    .app {
-      display: flex;
-      height: 100vh;
-    }
+/* ═══ ONBOARDING ═══ */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,0.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;animation:rise 0.2s ease;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:520px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-header{text-align:center;margin-bottom:24px;}
+.modal-brand{font-family:var(--font-display);font-size:28px;font-weight:600;color:var(--blue);margin-bottom:2px;}
+.modal-tagline{font-size:12px;color:var(--text-3);letter-spacing:1px;margin-bottom:12px;}
+.modal h2{font-family:var(--font-display);font-size:22px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.modal .msub{font-size:13px;color:var(--text-2);}
+.form-section{border-radius:var(--r);padding:16px;margin-bottom:14px;border:1px solid transparent;}
+.form-section.section-personal{background:var(--pastel-sky);border-color:var(--pastel-sky-border);}
+.form-section.section-financial{background:var(--pastel-mint);border-color:var(--pastel-mint-border);}
+.form-section.section-property{background:var(--pastel-peach);border-color:var(--pastel-peach-border);}
+.form-section.section-debts{background:var(--pastel-lavender);border-color:var(--pastel-lavender-border);}
+.section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.section-personal .section-title{color:#1565c0;}
+.section-financial .section-title{color:#00796b;}
+.section-property .section-title{color:#e65100;}
+.section-debts .section-title{color:#6a1b9a;}
+.ff{margin-bottom:10px;}.ff:last-child{margin-bottom:0;}
+.ff label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;letter-spacing:0.2px;}
+.ff input,.ff select{width:100%;padding:9px 12px;background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.08);border-radius:var(--r-sm);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.ff input:focus,.ff select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.12);background:#fff;}
+.ff input:disabled{opacity:0.3;}
+.frow{display:flex;gap:12px;}.frow .ff{flex:1;}
+.pill-group{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:8px 16px;border-radius:var(--r-pill);border:1.5px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.7);font-size:13px;font-family:var(--font);color:var(--text-2);cursor:pointer;transition:all 0.15s;font-weight:500;user-select:none;}
+.pill:hover{border-color:var(--blue);background:rgba(255,255,255,0.95);}
+.pill.selected{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:var(--shadow-sm);}
+.debt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.06);}
+.debt-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.debt-label{width:100px;font-size:12px;color:var(--text-2);font-weight:500;flex-shrink:0;}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer;}
+.toggle-track{position:absolute;inset:0;background:var(--surface-3);border:1px solid rgba(0,0,0,0.08);border-radius:11px;transition:all 0.2s;}
+.toggle.on .toggle-track{background:var(--teal);border-color:var(--teal);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform 0.2s;}
+.toggle.on .toggle-thumb{transform:translateX(18px);}
+.debt-input{flex:1;}
+.debt-input input{width:100%;padding:7px 10px;background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.06);border-radius:5px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;}
+.debt-input input:focus{border-color:var(--blue);}
+.modal-btns{display:flex;gap:10px;margin-top:20px;}
+.btn-go{flex:1;padding:12px;background:var(--blue);border:none;border-radius:var(--r-sm);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);box-shadow:var(--shadow-sm);transition:all 0.15s;}
+.btn-go:hover{opacity:0.9;box-shadow:var(--shadow);}
+.btn-skip{padding:12px 18px;background:none;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-2);font-size:14px;cursor:pointer;font-family:var(--font);transition:all 0.12s;}
+.btn-skip:hover{background:var(--surface-2);}
 
-    /* ── Sidebar ── */
-    .sidebar {
-      width: 280px;
-      min-width: 280px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      transition: margin-left 0.25s ease, opacity 0.25s ease;
-    }
-    .sidebar.collapsed {
-      margin-left: -280px;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .sidebar-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    .sidebar-logo {
-      font-family: var(--font-display);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-    }
-    .sidebar-tagline {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 4px;
-      letter-spacing: 0.3px;
-    }
-    .new-chat-sidebar {
-      margin: 16px 20px;
-      padding: 10px;
-      background: var(--accent-dim);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius);
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font-body);
-      text-align: center;
-      transition: background 0.15s;
-    }
-    .new-chat-sidebar:hover { background: rgba(79, 156, 247, 0.2); }
-
-    .sidebar-section-title {
-      padding: 16px 20px 8px;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-faint);
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-    }
-    .topic-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 12px 20px;
-    }
-    .topic-item {
-      padding: 9px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      color: var(--text-dim);
-      cursor: pointer;
-      transition: all 0.12s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .topic-item:hover {
-      background: var(--surface-hover);
-      color: var(--text);
-    }
-    .topic-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .progress-bar-wrap {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-    }
-    .progress-label {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .progress-track {
-      height: 4px;
-      background: var(--surface-alt);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--teal);
-      border-radius: 2px;
-      transition: width 0.4s ease;
-    }
-
-    /* ── Main Area ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .topbar {
-      height: 52px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-      background: var(--surface);
-    }
-    .menu-btn {
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-    }
-    .menu-btn:hover { background: var(--surface-hover); color: var(--text); }
-    .topbar-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      flex: 1;
-    }
-    .topbar-status {
-      font-size: 11px;
-      color: var(--teal);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--teal);
-    }
-
-    /* ── Messages ── */
-    .messages-wrap {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px 0;
-    }
-    .messages-inner {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* ── Welcome ── */
-    .welcome {
-      text-align: center;
-      padding: 60px 20px 40px;
-      animation: fadeUp 0.5s ease;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .welcome h1 {
-      font-family: var(--font-display);
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .welcome h1 span { color: var(--accent); }
-    .welcome p {
-      color: var(--text-dim);
-      font-size: 15px;
-      max-width: 460px;
-      margin: 0 auto 32px;
-      line-height: 1.6;
-    }
-    .quick-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      max-width: 520px;
-      margin: 0 auto;
-    }
-    .quick-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      color: var(--text-dim);
-      font-size: 13px;
-      font-family: var(--font-body);
-      cursor: pointer;
-      text-align: left;
-      line-height: 1.4;
-      transition: all 0.15s;
-    }
-    .quick-btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-light);
-      color: var(--text);
-    }
-
-    /* ── Message Rows ── */
-    .msg-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      animation: fadeUp 0.3s ease;
-    }
-    .msg-row.user { flex-direction: row-reverse; }
-
-    .msg-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .msg-avatar.ai { background: var(--accent-dim); color: var(--accent); }
-    .msg-avatar.user { background: var(--teal-dim); color: var(--teal); }
-
-    .msg-body { max-width: 85%; min-width: 0; }
-
-    .msg-bubble {
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      font-size: 14px;
-      line-height: 1.65;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-    .msg-bubble.ai {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .msg-bubble.user {
-      background: var(--accent-dim);
-      border: 1px solid rgba(79, 156, 247, 0.25);
-      color: var(--text);
-    }
-    .msg-bubble p { margin-bottom: 10px; }
-    .msg-bubble p:last-child { margin-bottom: 0; }
-    .msg-bubble strong { color: var(--accent); font-weight: 600; }
-    .msg-bubble code {
-      background: var(--bg);
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: 13px;
-    }
-    .msg-bubble ul, .msg-bubble ol {
-      margin: 8px 0;
-      padding-left: 20px;
-    }
-    .msg-bubble li { margin-bottom: 4px; }
-
-    /* Markdown tables */
-    .msg-bubble table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0;
-      font-size: 13px;
-    }
-    .msg-bubble th {
-      background: var(--surface-alt);
-      color: var(--accent);
-      font-weight: 600;
-      text-align: left;
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-    }
-    .msg-bubble td {
-      padding: 7px 10px;
-      border: 1px solid var(--border);
-      vertical-align: top;
-    }
-    .msg-bubble tr:nth-child(even) td {
-      background: rgba(255,255,255,0.02);
-    }
-
-    /* Markdown headers */
-    .msg-bubble h1, .msg-bubble h2, .msg-bubble h3,
-    .msg-bubble h4, .msg-bubble h5, .msg-bubble h6 {
-      color: var(--text);
-      margin: 16px 0 8px;
-      line-height: 1.3;
-    }
-    .msg-bubble h1 { font-size: 18px; }
-    .msg-bubble h2 { font-size: 16px; }
-    .msg-bubble h3 { font-size: 15px; color: var(--accent); }
-    .msg-bubble h4 { font-size: 14px; color: var(--teal); }
-    .msg-bubble h5, .msg-bubble h6 { font-size: 13px; color: var(--text-dim); }
-    .msg-bubble h1:first-child, .msg-bubble h2:first-child,
-    .msg-bubble h3:first-child, .msg-bubble h4:first-child { margin-top: 0; }
-
-    /* Blockquotes */
-    .msg-bubble blockquote {
-      border-left: 3px solid var(--accent);
-      margin: 10px 0;
-      padding: 8px 14px;
-      background: var(--surface-alt);
-      border-radius: 0 6px 6px 0;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-    .msg-bubble blockquote p { margin-bottom: 4px; }
-    .msg-bubble blockquote p:last-child { margin-bottom: 0; }
-
-    /* Horizontal rules */
-    .msg-bubble hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 14px 0;
-    }
-
-    /* Code blocks */
-    .msg-bubble pre {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px;
-      overflow-x: auto;
-      margin: 10px 0;
-      font-size: 13px;
-    }
-    .msg-bubble pre code {
-      background: none;
-      padding: 0;
-    }
-
-    .msg-time {
-      font-size: 10px;
-      color: var(--text-faint);
-      margin-top: 4px;
-      padding: 0 4px;
-    }
-    .msg-row.user .msg-time { text-align: right; }
-
-    .msg-topics {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .msg-topic-tag {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      background: var(--surface-alt);
-      color: var(--text-dim);
-      border: 1px solid var(--border);
-    }
-
-    /* ── Typing indicator ── */
-    .typing {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .typing-dots {
-      display: flex;
-      gap: 4px;
-      padding: 14px 18px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-    .typing-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      animation: blink 1.2s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes blink {
-      0%, 60%, 100% { opacity: 0.25; }
-      30% { opacity: 1; }
-    }
-
-    /* ── Input Area ── */
-    .input-area {
-      border-top: 1px solid var(--border);
-      padding: 16px 20px;
-      background: var(--surface);
-    }
-    .input-wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      background: var(--surface-alt);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 6px 6px 6px 16px;
-      transition: border-color 0.15s;
-    }
-    .input-wrap:focus-within { border-color: var(--accent); }
-
-    .input-field {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 14px;
-      font-family: var(--font-body);
-      resize: none;
-      outline: none;
-      line-height: 1.5;
-      max-height: 120px;
-      padding: 6px 0;
-    }
-    .input-field::placeholder { color: var(--text-faint); }
-
-    .send-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: opacity 0.15s;
-    }
-    .send-btn:disabled { opacity: 0.3; cursor: default; }
-    .send-btn:not(:disabled):hover { opacity: 0.85; }
-    .send-btn svg { width: 16px; height: 16px; }
-
-    .input-hint {
-      max-width: 760px;
-      margin: 6px auto 0;
-      font-size: 11px;
-      color: var(--text-faint);
-      text-align: center;
-    }
-
-    /* ── Onboarding modal ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      animation: fadeUp 0.25s ease;
-    }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 32px;
-      width: 420px;
-      max-width: 90vw;
-    }
-    .modal h2 {
-      font-family: var(--font-display);
-      font-size: 20px;
-      margin-bottom: 4px;
-      color: var(--text);
-    }
-    .modal .sub {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 20px;
-    }
-    .field { margin-bottom: 14px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-dim);
-      margin-bottom: 5px;
-    }
-    .field input, .field select {
-      width: 100%;
-      padding: 9px 12px;
-      background: var(--surface-alt);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: var(--font-body);
-      outline: none;
-    }
-    .field input:focus, .field select:focus { border-color: var(--accent); }
-    .field-row { display: flex; gap: 12px; }
-    .field-row .field { flex: 1; }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .btn-primary {
-      flex: 1;
-      padding: 10px;
-      background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font-body);
-    }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-ghost {
-      padding: 10px 16px;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-size: 14px;
-      cursor: pointer;
-      font-family: var(--font-body);
-    }
-    .btn-ghost:hover { background: var(--surface-hover); }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .sidebar { position: fixed; z-index: 50; height: 100vh; }
-      .sidebar.collapsed { margin-left: -280px; }
-      .sidebar-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 49;
-      }
-      .quick-grid { grid-template-columns: 1fr; }
-    }
-    @media (min-width: 769px) {
-      .sidebar-backdrop { display: none; }
-    }
-    .sidebar-close {
-      position: absolute;
-      top: 16px;
-      right: 12px;
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      display: none;
-    }
-    .sidebar-close:hover { color: var(--text); background: var(--surface-hover); }
-    @media (max-width: 768px) {
-      .sidebar-close { display: block; }
-      .sidebar-header { position: relative; }
-    }
+/* ═══ MOBILE ═══ */
+.backdrop{display:none;}
+.side-x{display:none;position:absolute;top:18px;right:14px;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;border-radius:4px;}
+.side-x:hover{background:var(--surface-2);}
+@media(max-width:768px){
+  .side{position:fixed;height:100vh;}
+  .side.hide{transform:translateX(-300px);}
+  .backdrop.show{display:block;position:fixed;inset:0;background:rgba(15,23,42,0.3);z-index:9;}
+  .side-x{display:block;}
+  .quick-cards{grid-template-columns:1fr;}
+  .modal{padding:24px 20px;}
+  .frow{flex-direction:column;gap:0;}
+}
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback } = React;
+/* ═══════════════════════════════════════════
+   DATA: STAGES
+   ═══════════════════════════════════════════ */
+const STAGES_DATA = [
+  { id:1, name:"Learn", desc:"Mortgage basics", color:"#2563eb", bg:"#eff4ff",
+    topics:[
+      {id:"t1",title:"Stress Test (B-20)",covered:true},
+      {id:"t2",title:"Fixed vs Variable Rates",covered:true},
+      {id:"t3",title:"Down Payment Rules",covered:true},
+      {id:"t4",title:"CMHC Insurance",covered:false},
+    ]},
+  { id:2, name:"Affordability", desc:"What can you afford?", color:"#0d9488", bg:"#ecfdf5",
+    topics:[
+      {id:"t5",title:"GDS / TDS Ratios",covered:true},
+      {id:"t6",title:"Loan-to-Value (LTV)",covered:true},
+      {id:"t7",title:"FHSA + HBP Programs",covered:false},
+      {id:"t8",title:"Closing Costs",covered:false},
+    ]},
+  { id:3, name:"Pre-Approval", desc:"Getting ready to apply", color:"#d97706", bg:"#fffbeb",
+    topics:[
+      {id:"t9",title:"What is Pre-Approval?",covered:true},
+      {id:"t10",title:"Documents You'll Need",covered:false},
+      {id:"t11",title:"Rate Holds Explained",covered:false},
+      {id:"t12",title:"Approval Stages & Timeline",covered:false},
+    ]},
+  { id:4, name:"Shopping", desc:"Evaluating properties", color:"#dc2626", bg:"#fef2f2",
+    topics:[
+      {id:"t13",title:"HCRA Builder Licensing",covered:false},
+      {id:"t14",title:"Tarion Warranty",covered:false},
+      {id:"t15",title:"Pre-Construction Risks",covered:false},
+      {id:"t16",title:"Area Development Plans",covered:false},
+    ]},
+  { id:5, name:"Agreement", desc:"Review before signing", color:"#7c3aed", bg:"#f5f3ff",
+    topics:[
+      {id:"t17",title:"Key APS Clauses",covered:false},
+      {id:"t18",title:"Questions for Your Lawyer",covered:false},
+      {id:"t19",title:"IRD Penalty Math",covered:false},
+    ]},
+];
 
-    // ── API ──
-    const API_BASE = window.location.origin + "/api";
+/* ═══════════════════════════════════════════
+   DATA: QUICK CARDS
+   ═══════════════════════════════════════════ */
+const QUICK_CARDS=[
+  {icon:"B-20",text:"How does the stress test affect me?",color:"#2563eb",bg:"#eff4ff"},
+  {icon:"$",text:"Minimum down payment for a $700K home?",color:"#0d9488",bg:"#ecfdf5"},
+  {icon:"%",text:"Fixed or variable -- what's better now?",color:"#d97706",bg:"#fffbeb"},
+  {icon:"!",text:"Pre-construction risks I should know?",color:"#dc2626",bg:"#fef2f2"},
+];
 
-    async function apiPost(path, body) {
-      const res = await fetch(API_BASE + path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      return res.json();
-    }
+/* ═══════════════════════════════════════════
+   ICONS
+   ═══════════════════════════════════════════ */
+function SendIcon(){return(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);}
+function MenuIcon(){return(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);}
+function CloseIcon(){return(<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);}
 
-    async function apiGet(path) {
-      const res = await fetch(API_BASE + path);
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      return res.json();
-    }
+/* ═══════════════════════════════════════════
+   ONBOARDING MODAL
+   ═══════════════════════════════════════════ */
+function Onboarding({onDone,onSkip}){
+  const[form,setForm]=useState({name:"",income:"",dp:"",loc:"GTA",prov:"ON",ftb:true,type:"pre-construction",price:""});
+  const[debts,setDebts]=useState({car:false,carAmt:"",cc:false,ccAmt:"",stu:false,stuAmt:"",loc2:false,locAmt:""});
+  const[busy,setBusy]=useState(false);
+  const uf=(k)=>(e)=>setForm({...form,[k]:e.target.value});
 
-    // ── Markdown rendering via marked.js ──
-    marked.setOptions({
-      breaks: true,
-      gfm: true,
-    });
+  const submit=async()=>{
+    setBusy(true);
+    try{
+      const body={...form,income:form.income?parseFloat(form.income):null,dp_amount:form.dp?parseFloat(form.dp):null,target_price:form.price?parseFloat(form.price):null,
+        liabilities:{has_car_loan:debts.car,car_loan_monthly:debts.car&&debts.carAmt?parseFloat(debts.carAmt):null,has_credit_card:debts.cc,credit_card_monthly:debts.cc&&debts.ccAmt?parseFloat(debts.ccAmt):null,has_student_loan:debts.stu,student_loan_monthly:debts.stu&&debts.stuAmt?parseFloat(debts.stuAmt):null,has_loc:debts.loc2,loc_monthly:debts.loc2&&debts.locAmt?parseFloat(debts.locAmt):null}};
+      const API=window.location.origin+"/api";
+      const r=await fetch(API+"/context",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(!r.ok)throw new Error(r.status);
+      const data=await r.json();
+      onDone(data.user_id,data.affordability_estimate);
+    }catch(e){console.error(e);onSkip();}
+    setBusy(false);
+  };
 
-    function formatText(text) {
-      if (!text) return "";
-      return marked.parse(text);
-    }
+  function DebtRow({label,hasKey,amtKey}){
+    const on=debts[hasKey];
+    return(
+      <div className="debt-row">
+        <div className="debt-label">{label}</div>
+        <div className={`toggle ${on?"on":""}`} onClick={()=>{if(on){setDebts({...debts,[hasKey]:false,[amtKey]:""});}else{setDebts({...debts,[hasKey]:true});}}}>
+          <div className="toggle-track"/><div className="toggle-thumb"/>
+        </div>
+        <div className="debt-input">
+          <input type="number" placeholder={on?"$/month":"--"} value={debts[amtKey]} disabled={!on} onChange={(e)=>setDebts({...debts,[amtKey]:e.target.value})}/>
+        </div>
+      </div>
+    );
+  }
 
-    // ── Category colors ──
-    const CAT_COLORS = {
-      regulatory: "#4f9cf7",
-      down_payment: "#0ea5a0",
-      rates: "#e5a93d",
-      affordability: "#a78bfa",
-      costs: "#e5475b",
-      pre_construction: "#f97316",
-      products: "#6ee7b7",
-      programs: "#f472b6",
-      process: "#94a3b8",
-    };
+  const purchaseTypes=[
+    {value:"pre-construction",label:"Pre-construction"},
+    {value:"resale",label:"Resale"},
+    {value:"refinance",label:"Refinance"},
+  ];
 
-    // ── Quick start questions ──
-    const QUICK_QUESTIONS = [
-      "How does the mortgage stress test work?",
-      "What's the minimum down payment for a $700K home?",
-      "Should I go fixed or variable rate?",
-      "What are the risks of buying pre-construction?",
-      "What closing costs should I budget for?",
-      "Can I use both FHSA and HBP for my down payment?",
-    ];
+  return(
+    <div className="overlay">
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-brand">own-ly</div>
+          <div className="modal-tagline">own your dream</div>
+          <h2>Let's personalize your journey</h2>
+          <p className="msub">Help us tailor the numbers to your situation. You can skip this.</p>
+        </div>
 
-    // ── SVG Icons ──
-    function SendIcon() {
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13" />
-          <polygon points="22 2 15 22 11 13 2 9 22 2" />
-        </svg>
-      );
-    }
-    function MenuIcon() {
-      return (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      );
-    }
+        <div className="form-section section-personal">
+          <div className="section-title">About You</div>
+          <div className="frow">
+            <div className="ff"><label>Your Name</label><input placeholder="e.g. Sara" value={form.name} onChange={uf("name")}/></div>
+            <div className="ff"><label>Location</label><input placeholder="GTA" value={form.loc} onChange={uf("loc")}/></div>
+          </div>
+        </div>
 
-    // ── Onboarding Modal ──
-    function OnboardingModal({ onComplete, onSkip }) {
-      const [form, setForm] = useState({
-        name: "", income: "", dp_amount: "", location: "GTA",
-        province: "ON", is_first_time: true, purchase_type: "pre-construction", target_price: "",
-      });
-      const [submitting, setSubmitting] = useState(false);
+        <div className="form-section section-financial">
+          <div className="section-title">Your Finances</div>
+          <div className="frow">
+            <div className="ff"><label>Annual Income ($)</label><input type="number" placeholder="95,000" value={form.income} onChange={uf("income")}/></div>
+            <div className="ff"><label>Down Payment ($)</label><input type="number" placeholder="45,000" value={form.dp} onChange={uf("dp")}/></div>
+          </div>
+        </div>
 
-      const handleSubmit = async () => {
-        setSubmitting(true);
-        try {
-          const body = { ...form };
-          if (body.income) body.income = parseFloat(body.income);
-          if (body.dp_amount) body.dp_amount = parseFloat(body.dp_amount);
-          if (body.target_price) body.target_price = parseFloat(body.target_price);
-          const resp = await apiPost("/context", body);
-          onComplete(resp.user_id, resp.affordability_estimate);
-        } catch (e) {
-          console.error("Onboarding error:", e);
-          onSkip();
-        }
-        setSubmitting(false);
-      };
-
-      const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-
-      return (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Tell us about yourself</h2>
-            <p className="sub">Personalize your experience (optional -- you can skip this)</p>
-
-            <div className="field">
-              <label>Name</label>
-              <input placeholder="e.g. Priya" value={form.name} onChange={set("name")} />
+        <div className="form-section section-property">
+          <div className="section-title">Property Details</div>
+          <div className="ff">
+            <label>Target Home Price ($)</label>
+            <input type="number" placeholder="700,000" value={form.price} onChange={uf("price")}/>
+          </div>
+          <div className="ff" style={{marginTop:10}}>
+            <label>Purchase Type</label>
+            <div className="pill-group">
+              {purchaseTypes.map((pt)=>(
+                <div key={pt.value} className={`pill ${form.type===pt.value?"selected":""}`} onClick={()=>setForm({...form,type:pt.value})}>{pt.label}</div>
+              ))}
             </div>
-
-            <div className="field-row">
-              <div className="field">
-                <label>Annual Income ($)</label>
-                <input type="number" placeholder="95000" value={form.income} onChange={set("income")} />
-              </div>
-              <div className="field">
-                <label>Down Payment ($)</label>
-                <input type="number" placeholder="45000" value={form.dp_amount} onChange={set("dp_amount")} />
-              </div>
-            </div>
-
-            <div className="field-row">
-              <div className="field">
-                <label>Target Price ($)</label>
-                <input type="number" placeholder="700000" value={form.target_price} onChange={set("target_price")} />
-              </div>
-              <div className="field">
-                <label>Location</label>
-                <input placeholder="GTA" value={form.location} onChange={set("location")} />
-              </div>
-            </div>
-
-            <div className="field-row">
-              <div className="field">
-                <label>Purchase Type</label>
-                <select value={form.purchase_type} onChange={set("purchase_type")}>
-                  <option value="pre-construction">Pre-construction</option>
-                  <option value="resale">Resale</option>
-                  <option value="refinance">Refinance</option>
-                </select>
-              </div>
-              <div className="field">
-                <label>First-time Buyer?</label>
-                <select value={form.is_first_time} onChange={(e) => setForm({...form, is_first_time: e.target.value === "true"})}>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn-ghost" onClick={onSkip}>Skip</button>
-              <button className="btn-primary" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? "Saving..." : "Start Learning"}
-              </button>
+          </div>
+          <div className="ff" style={{marginTop:10}}>
+            <label>First-time Buyer?</label>
+            <div className="pill-group">
+              <div className={`pill ${form.ftb===true?"selected":""}`} onClick={()=>setForm({...form,ftb:true})}>Yes, first time</div>
+              <div className={`pill ${form.ftb===false?"selected":""}`} onClick={()=>setForm({...form,ftb:false})}>No, I've owned before</div>
             </div>
           </div>
         </div>
-      );
-    }
 
-    // ── App ──
-    function App() {
-      const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
-      const [showOnboarding, setShowOnboarding] = useState(true);
-      const [userId, setUserId] = useState(null);
-      const [sessionId, setSessionId] = useState(null);
-      const [messages, setMessages] = useState([]);
-      const [topics, setTopics] = useState([]);
-      const [progress, setProgress] = useState({ topics_covered: 0, topics_total: 0, completion_pct: 0 });
-      const [input, setInput] = useState("");
-      const [loading, setLoading] = useState(false);
-      const [estimate, setEstimate] = useState(null);
-      const endRef = useRef(null);
-      const inputRef = useRef(null);
-
-      // Fetch topics on mount
-      useEffect(() => {
-        apiGet("/topics").then((d) => setTopics(d.topics || [])).catch(() => {});
-      }, []);
-
-      // Auto-scroll
-      useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, [messages, loading]);
-
-      // Onboarding handlers
-      const handleOnboardingComplete = (uid, est) => {
-        setUserId(uid);
-        setEstimate(est);
-        setShowOnboarding(false);
-      };
-      const handleOnboardingSkip = () => {
-        setShowOnboarding(false);
-      };
-
-      // Send message
-      const sendMessage = useCallback(async (text) => {
-        const msg = text || input.trim();
-        if (!msg || loading) return;
-        setInput("");
-
-        const userMsg = { role: "user", content: msg, time: new Date() };
-        setMessages((prev) => [...prev, userMsg]);
-        setLoading(true);
-
-        try {
-          const body = { message: msg };
-          if (userId) body.user_id = userId;
-          if (sessionId) body.session_id = sessionId;
-
-          const resp = await apiPost("/chat", body);
-
-          if (resp.user_id) setUserId(resp.user_id);
-          if (resp.session_id) setSessionId(resp.session_id);
-          if (resp.progress) setProgress(resp.progress);
-
-          const aiMsg = {
-            role: "assistant",
-            content: resp.message,
-            time: new Date(),
-            topics: resp.relevant_topics || [],
-          };
-          setMessages((prev) => [...prev, aiMsg]);
-        } catch (err) {
-          const errMsg = {
-            role: "assistant",
-            content: "Something went wrong connecting to the server. Please try again.",
-            time: new Date(),
-            topics: [],
-          };
-          setMessages((prev) => [...prev, errMsg]);
-        }
-
-        setLoading(false);
-        inputRef.current?.focus();
-      }, [input, loading, userId, sessionId]);
-
-      const handleKeyDown = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
-        }
-      };
-
-      const handleNewChat = () => {
-        setMessages([]);
-        setSessionId(null);
-      };
-
-      const handleInputChange = (e) => {
-        setInput(e.target.value);
-        e.target.style.height = "auto";
-        e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-      };
-
-      const timeStr = (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-      return (
-        <div className="app">
-          {showOnboarding && (
-            <OnboardingModal onComplete={handleOnboardingComplete} onSkip={handleOnboardingSkip} />
-          )}
-
-          {/* Sidebar backdrop (mobile) */}
-          {sidebarOpen && (
-            <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
-          )}
-
-          {/* Sidebar */}
-          <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
-            <div className="sidebar-header">
-              <div className="sidebar-logo">ownly</div>
-              <div className="sidebar-tagline">building a future</div>
-              <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            <button className="new-chat-sidebar" onClick={handleNewChat}>
-              New Conversation
-            </button>
-
-            {estimate && (
-              <div style={{ padding: "0 20px 12px", fontSize: 12, color: "var(--teal)" }}>
-                Est. max price: ${Number(estimate.estimated_max_price).toLocaleString()}
-              </div>
-            )}
-
-            <div className="sidebar-section-title">Knowledge Topics</div>
-            <div className="topic-list">
-              {topics.map((t) => (
-                <div
-                  key={t.id}
-                  className="topic-item"
-                  onClick={() => sendMessage(`Tell me about: ${t.title}`)}
-                >
-                  <div className="topic-dot" style={{ background: CAT_COLORS[t.category] || "#4f9cf7" }} />
-                  {t.title}
-                </div>
-              ))}
-            </div>
-
-            <div className="progress-bar-wrap">
-              <div className="progress-label">
-                <span>Progress</span>
-                <span>{progress.topics_covered}/{progress.topics_total}</span>
-              </div>
-              <div className="progress-track">
-                <div className="progress-fill" style={{ width: `${progress.completion_pct}%` }} />
-              </div>
-            </div>
-          </aside>
-
-          {/* Main */}
-          <main className="main">
-            <div className="topbar">
-              <button className="menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                <MenuIcon />
-              </button>
-              <div className="topbar-title">Mortgage Educator</div>
-              <div className="topbar-status"><div className="status-dot" /> Online</div>
-            </div>
-
-            <div className="messages-wrap">
-              <div className="messages-inner">
-                {messages.length === 0 ? (
-                  <div className="welcome">
-                    <h1>Welcome to <span>ownly</span></h1>
-                    <p>
-                      Your AI-powered home buyer advisor for the Canadian market.
-                      Ask about rates, down payments, the stress test, pre-construction risks, and more.
-                    </p>
-                    <div className="quick-grid">
-                      {QUICK_QUESTIONS.map((q, i) => (
-                        <button key={i} className="quick-btn" onClick={() => sendMessage(q)}>{q}</button>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  messages.map((msg, i) => (
-                    <div key={i} className={`msg-row ${msg.role === "user" ? "user" : ""}`}>
-                      <div className={`msg-avatar ${msg.role === "user" ? "user" : "ai"}`}>
-                        {msg.role === "user" ? "You" : "N"}
-                      </div>
-                      <div className="msg-body">
-                        <div
-                          className={`msg-bubble ${msg.role === "user" ? "user" : "ai"}`}
-                          dangerouslySetInnerHTML={{
-                            __html: msg.role === "user" ? formatText(msg.content) : formatText(msg.content),
-                          }}
-                        />
-                        {msg.topics && msg.topics.length > 0 && (
-                          <div className="msg-topics">
-                            {msg.topics.map((t) => (
-                              <span key={t.id} className="msg-topic-tag">{t.title}</span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="msg-time">{timeStr(msg.time)}</div>
-                      </div>
-                    </div>
-                  ))
-                )}
-
-                {loading && (
-                  <div className="typing">
-                    <div className="msg-avatar ai">N</div>
-                    <div className="typing-dots">
-                      <div className="typing-dot" />
-                      <div className="typing-dot" />
-                      <div className="typing-dot" />
-                    </div>
-                  </div>
-                )}
-                <div ref={endRef} />
-              </div>
-            </div>
-
-            <div className="input-area">
-              <div className="input-wrap">
-                <textarea
-                  ref={inputRef}
-                  className="input-field"
-                  rows={1}
-                  value={input}
-                  onChange={handleInputChange}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask about Canadian mortgages..."
-                  disabled={loading}
-                />
-                <button className="send-btn" onClick={() => sendMessage()} disabled={!input.trim() || loading}>
-                  <SendIcon />
-                </button>
-              </div>
-              <div className="input-hint">
-                Educational information only -- not financial advice. Press Enter to send.
-              </div>
-            </div>
-          </main>
+        <div className="form-section section-debts">
+          <div className="section-title">Existing Debts</div>
+          <DebtRow label="Car Loan" hasKey="car" amtKey="carAmt"/>
+          <DebtRow label="Credit Card" hasKey="cc" amtKey="ccAmt"/>
+          <DebtRow label="Student Loan" hasKey="stu" amtKey="stuAmt"/>
+          <DebtRow label="Line of Credit" hasKey="loc2" amtKey="locAmt"/>
         </div>
-      );
-    }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+        <div className="modal-btns">
+          <button className="btn-skip" onClick={onSkip}>Skip for now</button>
+          <button className="btn-go" onClick={submit} disabled={busy}>{busy?"Saving...":"Start my journey"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════ */
+function Sidebar({show,onClose,onNewChat,estimate,stagesData,activeStage,setActiveStage,onTopicClick}){
+  const isUnlocked=(sid)=>{
+    if(sid===1)return true;
+    const prev=stagesData.find(s=>s.id===sid-1);
+    if(!prev)return false;
+    return prev.topics.filter(t=>t.covered).length>=Math.ceil(prev.topics.length*0.5);
+  };
+  const stageStatus=(st)=>{const c=st.topics.filter(t=>t.covered).length;if(c===st.topics.length)return"done";if(c>0)return"partial";return"new";};
+  const totalTopics=stagesData.reduce((a,s)=>a+s.topics.length,0);
+  const coveredTopics=stagesData.reduce((a,s)=>a+s.topics.filter(t=>t.covered).length,0);
+  const progressPct=Math.round(coveredTopics/totalTopics*100);
+
+  return(
+    <aside className={`side ${show?"":"hide"}`}>
+      <div className="side-head" style={{position:"relative"}}>
+        <div className="side-brand">own-ly</div>
+        <div className="side-sub">own your dream</div>
+        <button className="side-x" onClick={onClose}><CloseIcon/></button>
+      </div>
+      <button className="side-newchat" onClick={onNewChat}>New Conversation</button>
+      {estimate&&(
+        <div className="side-est">
+          <div className="est-card">
+            <div className="est-label">Estimated Max Price</div>
+            <div className="est-val">${Number(estimate.estimated_max_price||0).toLocaleString()}</div>
+            {estimate.monthly_debts>0&&<div className="est-detail">Monthly debts: <span>${Number(estimate.monthly_debts).toLocaleString()}</span></div>}
+            {estimate.limited_by&&<div className="est-detail" style={{color:"var(--text-3)"}}>Limited by: {estimate.limited_by}</div>}
+          </div>
+        </div>
+      )}
+      <div className="journey">
+        <div className="journey-label">Your Journey</div>
+        {stagesData.map((st,i)=>{
+          const unlocked=isUnlocked(st.id);
+          const isActive=st.id===activeStage;
+          const status=stageStatus(st);
+          const covCount=st.topics.filter(t=>t.covered).length;
+          const prevDoneLine=i>0&&stagesData[i-1].topics.filter(t=>t.covered).length>=Math.ceil(stagesData[i-1].topics.length*0.5);
+          return(
+            <div className="stg" key={st.id}>
+              {i>0&&<div className={`stg-connector ${prevDoneLine?"done-line":""}`}/>}
+              <div className={["stg-row",isActive?"active":"",status==="done"?"done":"",status==="partial"?"partial":"",!unlocked?"locked":""].filter(Boolean).join(" ")} onClick={()=>unlocked&&setActiveStage(st.id)}>
+                <div className="stg-icon" style={isActive?{borderColor:st.color,color:st.color,background:st.bg}:status==="done"?{borderColor:"var(--teal)",background:"var(--teal)",color:"#fff"}:status==="partial"?{borderColor:st.color,color:st.color,background:st.bg}:{}}>{st.id}</div>
+                <div className="stg-info"><div className="stg-name">{st.name}</div><div className="stg-desc">{st.desc}</div></div>
+                <div className={`stg-badge ${status==="done"?"done":status==="partial"?"partial":!unlocked?"locked":"new"}`}>
+                  {status==="done"?"Done":status==="partial"?`${covCount}/${st.topics.length}`:!unlocked?"Locked":`0/${st.topics.length}`}
+                </div>
+              </div>
+              {isActive&&unlocked&&(
+                <div className="topics">
+                  {st.topics.map(t=>(
+                    <div key={t.id} className={`topic ${t.covered?"covered":""}`} onClick={()=>onTopicClick(t.title)}>
+                      <div className="topic-dot"/><span>{t.title}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="side-progress">
+        <div className="prog-head"><span>Overall Progress</span><span>{coveredTopics}/{totalTopics}</span></div>
+        <div className="prog-track"><div className="prog-fill" style={{width:progressPct+"%"}}/></div>
+      </div>
+    </aside>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   CHAT AREA
+   ═══════════════════════════════════════════ */
+marked.setOptions({breaks:true,gfm:true});
+const renderMd=(t)=>t?marked.parse(t):"";
+
+function ChatArea({showSide,onToggleSide,messages,loading,input,setInput,onSend}){
+  const endRef=useRef(null);
+  const inpRef=useRef(null);
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[messages,loading]);
+  const kd=(e)=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();onSend();}};
+  const ic=(e)=>{setInput(e.target.value);e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,120)+"px";};
+  const ts=(d)=>d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+  return(
+    <main className="main">
+      <div className="top">
+        <button className="top-menu" onClick={onToggleSide}><MenuIcon/></button>
+        <div className="top-title">Mortgage Educator</div>
+        <div className="top-status"><div className="top-dot"/>Online</div>
+      </div>
+      <div className="msgs-wrap">
+        <div className="msgs">
+          {messages.length===0?(
+            <div className="welcome">
+              <div className="welcome-badge">AI-Powered Mortgage Education</div>
+              <h1>Your home buying<br/>journey starts <em>here</em></h1>
+              <p>Personalized Canadian mortgage guidance. No jargon, no pressure, just clarity for first-time buyers.</p>
+              <div className="quick-cards">
+                {QUICK_CARDS.map((q,i)=>(
+                  <div key={i} className="qcard" onClick={()=>onSend(q.text)}>
+                    <div className="qcard-icon" style={{color:q.color,background:q.bg}}>{q.icon}</div>
+                    <div className="qcard-text">{q.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ):(
+            messages.map((m,i)=>(
+              <div key={i} className={`mrow ${m.role==="user"?"usr":""}`}>
+                <div className={`mav ${m.role==="user"?"usr":"ai"}`}>{m.role==="user"?"You":"O"}</div>
+                <div className="mbody">
+                  <div className={`mbub ${m.role==="user"?"usr":"ai"}`} dangerouslySetInnerHTML={{__html:renderMd(m.content)}}/>
+                  {m.topics&&m.topics.length>0&&(<div className="mtags">{m.topics.map(t=>(<span key={t.id} className="mtag">{t.title}</span>))}</div>)}
+                  <div className="mtime">{ts(m.time)}</div>
+                </div>
+              </div>
+            ))
+          )}
+          {loading&&(<div className="typing"><div className="mav ai">O</div><div className="tdots"><div className="tdot"/><div className="tdot"/><div className="tdot"/></div></div>)}
+          <div ref={endRef}/>
+        </div>
+      </div>
+      <div className="inp-area">
+        <div className="inp-wrap">
+          <textarea ref={inpRef} className="inp" rows={1} value={input} onChange={ic} onKeyDown={kd} placeholder="Ask about Canadian mortgages..." disabled={loading}/>
+          <button className="sendbtn" onClick={()=>onSend()} disabled={!input.trim()||loading}><SendIcon/></button>
+        </div>
+        <div className="inp-hint">Educational information only -- not financial advice. Enter to send.</div>
+      </div>
+    </main>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   APP ROOT
+   ═══════════════════════════════════════════ */
+const API_BASE=window.location.origin+"/api";
+const postAPI=async(path,body)=>{const r=await fetch(API_BASE+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error(r.status);return r.json();};
+
+function App(){
+  const[showSide,setShowSide]=useState(window.innerWidth>768);
+  const[showOnboard,setShowOnboard]=useState(true);
+  const[uid,setUid]=useState(null);
+  const[sid,setSid]=useState(null);
+  const[msgs,setMsgs]=useState([]);
+  const[activeStage,setActiveStage]=useState(1);
+  const[stagesData]=useState(STAGES_DATA);
+  const[input,setInput]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[estimate,setEstimate]=useState(null);
+
+  const send=useCallback(async(text)=>{
+    const m=text||input.trim();
+    if(!m||loading)return;
+    setInput("");
+    setMsgs(p=>[...p,{role:"user",content:m,time:new Date()}]);
+    setLoading(true);
+    try{
+      const body={message:m};
+      if(uid)body.user_id=uid;
+      if(sid)body.session_id=sid;
+      const r=await postAPI("/chat",body);
+      if(r.user_id)setUid(r.user_id);
+      if(r.session_id)setSid(r.session_id);
+      setMsgs(p=>[...p,{role:"assistant",content:r.message,time:new Date(),topics:r.relevant_topics||[]}]);
+    }catch(e){
+      setMsgs(p=>[...p,{role:"assistant",content:"Something went wrong. Please try again.",time:new Date(),topics:[]}]);
+    }
+    setLoading(false);
+  },[input,loading,uid,sid]);
+
+  return(
+    <div className="app">
+      {showOnboard&&<Onboarding onDone={(u,e)=>{setUid(u);setEstimate(e);setShowOnboard(false);}} onSkip={()=>setShowOnboard(false)}/>}
+      <div className={`backdrop ${showSide?"show":""}`} onClick={()=>setShowSide(false)}/>
+      <Sidebar show={showSide} onClose={()=>setShowSide(false)} onNewChat={()=>{setMsgs([]);setSid(null);}} estimate={estimate} stagesData={stagesData} activeStage={activeStage} setActiveStage={setActiveStage} onTopicClick={(title)=>send("Tell me about: "+title)}/>
+      <ChatArea showSide={showSide} onToggleSide={()=>setShowSide(!showSide)} messages={msgs} loading={loading} input={input} setInput={setInput} onSend={send}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>

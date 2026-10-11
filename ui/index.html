@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>own-ly | AI Home Buyer Advisor</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+:root {
+  --bg:#f5f6fa;--surface:#ffffff;--surface-2:#f0f3f8;--surface-3:#e6ebf3;
+  --border:#dce2ed;--border-hover:#c4cedd;
+  --blue:#2563eb;--blue-light:#eff4ff;--blue-mid:#dbeafe;
+  --teal:#0d9488;--teal-light:#ecfdf5;--teal-mid:#ccfbf1;
+  --amber:#d97706;--amber-light:#fffbeb;
+  --coral:#dc2626;--coral-light:#fef2f2;
+  --violet:#7c3aed;--violet-light:#f5f3ff;
+  --pastel-sky:#e3f2fd;--pastel-sky-border:#bbdefb;
+  --pastel-mint:#e0f2f1;--pastel-mint-border:#b2dfdb;
+  --pastel-peach:#fff3e0;--pastel-peach-border:#ffe0b2;
+  --pastel-lavender:#ede7f6;--pastel-lavender-border:#d1c4e9;
+  --text:#1e293b;--text-2:#475569;--text-3:#94a3b8;
+  --font:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-display:'Fraunces',Georgia,serif;
+  --r:12px;--r-sm:8px;--r-lg:16px;--r-pill:100px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 14px rgba(0,0,0,0.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh;overflow:hidden;}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type="number"]{-moz-appearance:textfield;}
+.app{display:flex;height:100vh;}
+
+/* SIDEBAR */
+.side{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(.4,0,.2,1);z-index:10;box-shadow:var(--shadow-sm);}
+.side.hide{transform:translateX(-300px);position:absolute;height:100vh;}
+.side-head{padding:22px 20px 14px;border-bottom:1px solid var(--border);}
+.side-brand{font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--blue);letter-spacing:-0.3px;}
+.side-sub{font-size:11px;color:var(--text-3);margin-top:2px;letter-spacing:0.5px;}
+.side-actions{display:flex;gap:8px;margin:14px 16px;}
+.side-newchat{flex:1;padding:10px;background:var(--blue);border:none;border-radius:var(--r-sm);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);text-align:center;transition:all 0.15s;box-shadow:var(--shadow-sm);}
+.side-newchat:hover{opacity:0.9;box-shadow:var(--shadow);}
+.side-editbtn{padding:10px 14px;background:none;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all 0.12s;}
+.side-editbtn:hover{background:var(--surface-2);border-color:var(--border-hover);}
+.side-est{padding:0 20px 14px;border-bottom:1px solid var(--border);}
+.est-card{background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:var(--r-sm);padding:12px 14px;}
+.est-label{font-size:10px;font-weight:600;color:var(--teal);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;}
+.est-val{font-size:20px;font-weight:700;color:var(--teal);letter-spacing:-0.5px;}
+.est-detail{font-size:11px;color:var(--text-2);margin-top:4px;}
+.est-detail span{color:var(--coral);font-weight:600;}
+.est-amort{font-size:11px;color:var(--blue);font-weight:500;margin-top:4px;}
+.journey{flex:1;overflow-y:auto;padding:6px 0;}
+.journey-label{font-size:9px;font-weight:700;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;padding:12px 20px 6px;}
+.stg{position:relative;padding:0 12px;}
+.stg-row{display:flex;align-items:flex-start;gap:12px;padding:10px;border-radius:var(--r-sm);cursor:pointer;transition:all 0.12s;}
+.stg-row:hover{background:var(--surface-2);}
+.stg-row.active{background:var(--blue-light);}
+.stg-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:var(--surface);color:var(--text-3);transition:all 0.2s;}
+.stg-row.active .stg-icon{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.stg-row.done .stg-icon{border-color:var(--teal);background:var(--teal);color:#fff;}
+.stg-row.partial .stg-icon{border-color:var(--amber);color:var(--amber);background:var(--amber-light);}
+.stg-info{flex:1;min-width:0;padding-top:2px;}
+.stg-name{font-size:13px;font-weight:600;color:var(--text-2);}
+.stg-row.active .stg-name{color:var(--text);}
+.stg-desc{font-size:11px;color:var(--text-3);margin-top:1px;}
+.stg-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:4px;}
+.stg-badge.done{background:var(--teal-light);color:var(--teal);}
+.stg-badge.partial{background:var(--amber-light);color:var(--amber);}
+.stg-badge.new{background:var(--surface-2);color:var(--text-3);}
+.stg-connector{width:2px;height:8px;background:var(--border);margin:0 0 0 28px;}
+.stg-connector.done-line{background:var(--teal);}
+.topics{padding:2px 12px 8px;}
+.topic{padding:7px 12px 7px 56px;font-size:13px;color:var(--text-2);cursor:pointer;border-radius:6px;transition:all 0.12s;display:flex;align-items:center;gap:8px;}
+.topic:hover{background:var(--surface-2);color:var(--text);}
+.topic-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:2px solid var(--border);}
+.topic.covered .topic-dot{background:var(--teal);border-color:var(--teal);}
+.side-progress{padding:14px 20px;border-top:1px solid var(--border);}
+.prog-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px;font-weight:500;}
+.prog-track{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:2px;transition:width 0.5s ease;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg);}
+.top{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--surface);box-shadow:var(--shadow-sm);}
+.top-menu{background:none;border:none;color:var(--text-2);cursor:pointer;padding:6px;border-radius:6px;display:flex;}
+.top-menu:hover{background:var(--surface-2);}
+.top-title{font-size:15px;font-weight:600;flex:1;}
+.top-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+.top-status{font-size:12px;color:var(--teal);display:flex;align-items:center;gap:5px;font-weight:500;}
+.msgs-wrap{flex:1;overflow-y:auto;}
+.msgs{max-width:740px;margin:0 auto;padding:24px 20px;}
+.welcome{text-align:center;padding:48px 20px 32px;animation:rise 0.6s cubic-bezier(.4,0,.2,1);}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.welcome-badge{display:inline-block;padding:5px 14px;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:20px;font-size:11px;color:var(--blue);font-weight:600;margin-bottom:20px;}
+.welcome h1{font-family:var(--font-display);font-size:32px;font-weight:500;line-height:1.3;margin-bottom:10px;color:var(--text);}
+.welcome h1 em{font-style:normal;color:var(--blue);}
+.welcome p{color:var(--text-2);font-size:15px;max-width:420px;margin:0 auto 24px;line-height:1.65;}
+/* Sidebar hint on welcome */
+.side-hint{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid var(--blue-mid);border-radius:var(--r-pill);font-size:12px;color:var(--blue);margin:0 auto 24px;width:fit-content;cursor:pointer;transition:all 0.15s;}
+.side-hint:hover{background:var(--blue-light);box-shadow:var(--shadow-sm);}
+.quick-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:0 auto;}
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;text-align:left;transition:all 0.18s;box-shadow:var(--shadow-sm);}
+.qcard:hover{border-color:var(--blue-mid);box-shadow:var(--shadow);transform:translateY(-1px);}
+.qcard-icon{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-bottom:10px;}
+.qcard-text{font-size:13px;color:var(--text-2);line-height:1.45;}
+.qcard:hover .qcard-text{color:var(--text);}
+.mrow{display:flex;gap:12px;margin-bottom:24px;animation:rise 0.3s ease;}
+.mrow.usr{flex-direction:row-reverse;}
+.mav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.mav.ai{background:var(--blue-light);color:var(--blue);}
+.mav.usr{background:var(--teal-light);color:var(--teal);}
+.mbody{max-width:82%;min-width:0;}
+.mbub{padding:14px 18px;border-radius:var(--r);font-size:14px;line-height:1.7;word-wrap:break-word;box-shadow:var(--shadow-sm);}
+.mbub.ai{background:var(--surface);border:1px solid var(--border);}
+.mbub.usr{background:var(--blue);color:#fff;border:none;}
+.mbub.usr strong{color:#fff;}
+.mbub p{margin-bottom:10px;}.mbub p:last-child{margin-bottom:0;}
+.mbub strong{color:var(--blue);font-weight:600;}
+.mbub code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:13px;}
+.mbub ul,.mbub ol{margin:8px 0;padding-left:20px;}.mbub li{margin-bottom:4px;}
+.mbub table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.mbub th{background:var(--surface-2);color:var(--blue);font-weight:600;text-align:left;padding:8px 10px;border:1px solid var(--border);white-space:nowrap;}
+.mbub td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;min-width:80px;}
+.mbub h1,.mbub h2,.mbub h3,.mbub h4{margin:16px 0 8px;line-height:1.3;}
+.mbub h3{font-size:15px;color:var(--blue);}.mbub h4{font-size:14px;color:var(--teal);}
+.mbub h1:first-child,.mbub h2:first-child,.mbub h3:first-child{margin-top:0;}
+.mbub blockquote{border-left:3px solid var(--blue);margin:10px 0;padding:8px 14px;background:var(--blue-light);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--text-2);font-size:13px;}
+.mbub hr{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.mbub pre{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;overflow-x:auto;margin:10px 0;}
+.mbub pre code{background:none;padding:0;}
+.mtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.mtag{font-size:10px;padding:3px 8px;border-radius:10px;background:var(--blue-light);color:var(--blue);font-weight:500;}
+.mtime{font-size:10px;color:var(--text-3);margin-top:5px;padding:0 4px;}
+.mrow.usr .mtime{text-align:right;}
+.typing{display:flex;gap:12px;margin-bottom:24px;}
+.tdots{display:flex;gap:5px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:pulse 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:0.2s;}.tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,60%,100%{opacity:0.2}30%{opacity:1}}
+.inp-area{border-top:1px solid var(--border);padding:16px 20px;background:var(--surface);box-shadow:0 -1px 3px rgba(0,0,0,0.03);}
+.inp-wrap{max-width:740px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:4px 4px 4px 16px;transition:border-color 0.15s;}
+.inp-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-light);}
+.inp{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--font);resize:none;outline:none;line-height:1.5;max-height:120px;padding:8px 0;}
+.inp::placeholder{color:var(--text-3);}
+.sendbtn{width:38px;height:38px;border-radius:var(--r-sm);border:none;background:var(--blue);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;box-shadow:var(--shadow-sm);}
+.sendbtn:disabled{opacity:0.3;cursor:default;}
+.sendbtn:not(:disabled):hover{box-shadow:var(--shadow);}
+.sendbtn svg{width:15px;height:15px;}
+.inp-hint{max-width:740px;margin:6px auto 0;font-size:11px;color:var(--text-3);text-align:center;}
+
+/* ONBOARDING */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,0.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;animation:rise 0.2s ease;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:520px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+
+/* AFFORDABILITY RESULT */
+.af-result{text-align:center;animation:rise 0.4s ease;}
+.af-big{font-family:var(--font-display);font-size:42px;font-weight:700;letter-spacing:-1px;margin:16px 0 4px;}
+.af-big.ok{color:var(--teal);}
+.af-big.stretch{color:var(--amber);}
+.af-big.over{color:var(--coral);}
+.af-subtitle{font-size:14px;color:var(--text-2);margin-bottom:20px;}
+.af-compare{display:flex;gap:12px;margin-bottom:20px;}
+.af-card{flex:1;padding:14px;border-radius:var(--r);text-align:center;}
+.af-card.target{background:var(--surface-2);border:1px solid var(--border);}
+.af-card.qualify{border:2px solid var(--teal);background:var(--teal-light);}
+.af-card.gap{border:2px solid var(--coral);background:var(--coral-light);}
+.af-card-label{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;}
+.af-card.target .af-card-label{color:var(--text-3);}
+.af-card.qualify .af-card-label{color:var(--teal);}
+.af-card.gap .af-card-label{color:var(--coral);}
+.af-card-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.af-card.target .af-card-val{color:var(--text);}
+.af-card.qualify .af-card-val{color:var(--teal);}
+.af-card.gap .af-card-val{color:var(--coral);}
+.af-details{text-align:left;margin-bottom:20px;}
+.af-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--surface-3);font-size:13px;}
+.af-row:last-child{border-bottom:none;}
+.af-row-label{color:var(--text-2);}
+.af-row-val{font-weight:600;color:var(--text);}
+.af-insight{padding:14px;border-radius:var(--r);margin-bottom:20px;font-size:13px;line-height:1.6;text-align:left;}
+.af-insight.ok{background:var(--teal-light);border:1px solid var(--teal-mid);color:#065f46;}
+.af-insight.stretch{background:var(--amber-light);border:1px solid #fde68a;color:#92400e;}
+.af-insight.over{background:var(--coral-light);border:1px solid #fecaca;color:#991b1b;}
+.modal-header{text-align:center;margin-bottom:24px;}
+.modal-brand{font-family:var(--font-display);font-size:28px;font-weight:600;color:var(--blue);margin-bottom:2px;}
+.modal-tagline{font-size:12px;color:var(--text-3);letter-spacing:1px;margin-bottom:12px;}
+.modal h2{font-family:var(--font-display);font-size:22px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.modal .msub{font-size:13px;color:var(--text-2);}
+.form-section{border-radius:var(--r);padding:16px;margin-bottom:14px;border:1px solid transparent;}
+.form-section.section-personal{background:var(--pastel-sky);border-color:var(--pastel-sky-border);}
+.form-section.section-financial{background:var(--pastel-mint);border-color:var(--pastel-mint-border);}
+.form-section.section-property{background:var(--pastel-peach);border-color:var(--pastel-peach-border);}
+.form-section.section-debts{background:var(--pastel-lavender);border-color:var(--pastel-lavender-border);}
+.section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.section-personal .section-title{color:#1565c0;}
+.section-financial .section-title{color:#00796b;}
+.section-property .section-title{color:#e65100;}
+.section-debts .section-title{color:#6a1b9a;}
+.ff{margin-bottom:10px;}.ff:last-child{margin-bottom:0;}
+.ff label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;letter-spacing:0.2px;}
+.ff input,.ff select{width:100%;padding:9px 12px;background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.08);border-radius:var(--r-sm);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.ff input:focus,.ff select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.12);background:#fff;}
+.ff input:disabled{opacity:0.3;}
+.frow{display:flex;gap:12px;}.frow .ff{flex:1;}
+.pill-group{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:8px 16px;border-radius:var(--r-pill);border:1.5px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.7);font-size:13px;font-family:var(--font);color:var(--text-2);cursor:pointer;transition:all 0.15s;font-weight:500;user-select:none;}
+.pill:hover{border-color:var(--blue);background:rgba(255,255,255,0.95);}
+.pill.selected{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:var(--shadow-sm);}
+.debt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.06);}
+.debt-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.debt-label{width:100px;font-size:12px;color:var(--text-2);font-weight:500;flex-shrink:0;}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer;}
+.toggle-track{position:absolute;inset:0;background:var(--surface-3);border:1px solid rgba(0,0,0,0.08);border-radius:11px;transition:all 0.2s;}
+.toggle.on .toggle-track{background:var(--teal);border-color:var(--teal);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform 0.2s;}
+.toggle.on .toggle-thumb{transform:translateX(18px);}
+.debt-input{flex:1;}
+.debt-input input{width:100%;padding:7px 10px;background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.06);border-radius:5px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;}
+.debt-input input:focus{border-color:var(--blue);}
+.modal-btns{display:flex;gap:10px;margin-top:20px;}
+.btn-go{flex:1;padding:12px;background:var(--blue);border:none;border-radius:var(--r-sm);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);box-shadow:var(--shadow-sm);transition:all 0.15s;}
+.btn-go:hover{opacity:0.9;box-shadow:var(--shadow);}
+.btn-skip{padding:12px 18px;background:none;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-2);font-size:14px;cursor:pointer;font-family:var(--font);transition:all 0.12s;}
+.btn-skip:hover{background:var(--surface-2);}
+
+/* MOBILE */
+.backdrop{display:none;}
+.side-x{display:none;position:absolute;top:18px;right:14px;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;border-radius:4px;}
+.side-x:hover{background:var(--surface-2);}
+@media(max-width:768px){
+  .side{position:fixed;height:100vh;}
+  .side.hide{transform:translateX(-300px);}
+  .backdrop.show{display:block;position:fixed;inset:0;background:rgba(15,23,42,0.3);z-index:9;}
+  .side-x{display:block;}
+  .quick-cards{grid-template-columns:1fr;}
+  .modal{padding:24px 20px;}
+  .frow{flex-direction:column;gap:0;}
+  .af-compare{flex-direction:column;gap:8px;}
+  .af-big{font-size:34px;}
+  .mbub{max-width:100%;overflow-x:auto;}
+  .mbody{max-width:88%;}
+}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+/* ═══════════════════════════════════════════
+   DATA: STAGES -- all covered:false (progress starts at 0)
+   ═══════════════════════════════════════════ */
+const INIT_STAGES = [
+  { id:1, name:"Learn", desc:"Mortgage basics", color:"#2563eb", bg:"#eff4ff",
+    topics:[
+      {id:"t1",title:"Stress Test (B-20)",covered:false},
+      {id:"t2",title:"Fixed vs Variable Rates",covered:false},
+      {id:"t3",title:"Down Payment Rules",covered:false},
+      {id:"t4",title:"CMHC Insurance",covered:false},
+    ]},
+  { id:2, name:"Affordability", desc:"What can you afford?", color:"#0d9488", bg:"#ecfdf5",
+    topics:[
+      {id:"t5",title:"GDS / TDS Ratios",covered:false},
+      {id:"t6",title:"Loan-to-Value (LTV)",covered:false},
+      {id:"t7",title:"FHSA + HBP Programs",covered:false},
+      {id:"t8",title:"Closing Costs",covered:false},
+    ]},
+  { id:3, name:"Pre-Approval", desc:"Getting ready to apply", color:"#d97706", bg:"#fffbeb",
+    topics:[
+      {id:"t9",title:"What is Pre-Approval?",covered:false},
+      {id:"t10",title:"Documents You'll Need",covered:false},
+      {id:"t11",title:"Rate Holds Explained",covered:false},
+      {id:"t12",title:"Approval Stages & Timeline",covered:false},
+    ]},
+  { id:4, name:"Shopping", desc:"Evaluating properties", color:"#dc2626", bg:"#fef2f2",
+    topics:[
+      {id:"t13",title:"HCRA Builder Licensing",covered:false},
+      {id:"t14",title:"Tarion Warranty",covered:false},
+      {id:"t15",title:"Pre-Construction Risks",covered:false},
+      {id:"t16",title:"Area Development Plans",covered:false},
+    ]},
+  { id:5, name:"Agreement", desc:"Review before signing", color:"#7c3aed", bg:"#f5f3ff",
+    topics:[
+      {id:"t17",title:"Key APS Clauses",covered:false},
+      {id:"t18",title:"Questions for Your Lawyer",covered:false},
+      {id:"t19",title:"IRD Penalty Math",covered:false},
+    ]},
+];
+
+const QUICK_CARDS=[
+  {icon:"B-20",text:"How does the stress test affect me?",color:"#2563eb",bg:"#eff4ff"},
+  {icon:"$",text:"Minimum down payment for a $700K home?",color:"#0d9488",bg:"#ecfdf5"},
+  {icon:"%",text:"Fixed or variable -- what's better now?",color:"#d97706",bg:"#fffbeb"},
+  {icon:"!",text:"Pre-construction risks I should know?",color:"#dc2626",bg:"#fef2f2"},
+];
+
+/* ICONS */
+function SendIcon(){return(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);}
+function MenuIcon(){return(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);}
+function CloseIcon(){return(<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);}
+function EditIcon(){return(<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>);}
+
+/* ═══ NUMERIC INPUT HELPER ═══ */
+/* Strips non-numeric chars (except dot) so number fields reject letters */
+function numVal(e){
+  const v=e.target.value.replace(/[^0-9.]/g,"");
+  /* prevent multiple dots */
+  const parts=v.split(".");
+  return parts.length>2?parts[0]+"."+parts.slice(1).join(""):v;
+}
+
+/* ═══ DEBT ROW (defined outside Onboarding to prevent remount/focus loss) ═══ */
+function DebtRow({label,on,amount,onToggle,onAmountChange}){
+  return(
+    <div className="debt-row">
+      <div className="debt-label">{label}</div>
+      <div className={`toggle ${on?"on":""}`} onClick={onToggle}>
+        <div className="toggle-track"/><div className="toggle-thumb"/>
+      </div>
+      <div className="debt-input">
+        <input
+          inputMode="decimal"
+          placeholder={on?"$/month":"--"}
+          value={amount}
+          disabled={!on}
+          onChange={(e)=>onAmountChange(numVal(e))}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ═══ ONBOARDING ═══ */
+function Onboarding({onDone,onSkip,initial}){
+  const[form,setForm]=useState(initial||{name:"",income:"",dp:"",loc:"GTA",prov:"ON",ftb:true,type:"pre-construction",price:""});
+  const[debts,setDebts]=useState({car:false,carAmt:"",cc:false,ccAmt:"",stu:false,stuAmt:"",loc2:false,locAmt:""});
+  const[busy,setBusy]=useState(false);
+
+  const uf=(k)=>(e)=>setForm({...form,[k]:e.target.value});
+  const ufNum=(k)=>(e)=>setForm({...form,[k]:numVal(e)});
+
+  const submit=async()=>{
+    setBusy(true);
+    try{
+      const body={
+        name:form.name,
+        income:form.income?parseFloat(form.income):null,
+        dp_amount:form.dp?parseFloat(form.dp):null,
+        target_price:form.price?parseFloat(form.price):null,
+        location:form.loc,
+        province:form.prov,
+        is_first_time:form.ftb,
+        purchase_type:form.type,
+        liabilities:{has_car_loan:debts.car,car_loan_monthly:debts.car&&debts.carAmt?parseFloat(debts.carAmt):null,has_credit_card:debts.cc,credit_card_monthly:debts.cc&&debts.ccAmt?parseFloat(debts.ccAmt):null,has_student_loan:debts.stu,student_loan_monthly:debts.stu&&debts.stuAmt?parseFloat(debts.stuAmt):null,has_loc:debts.loc2,loc_monthly:debts.loc2&&debts.locAmt?parseFloat(debts.locAmt):null}
+      };
+      const API=window.location.origin+"/api";
+      const r=await fetch(API+"/context",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(!r.ok)throw new Error(r.status);
+      const data=await r.json();
+      onDone(data.user_id,data.affordability_estimate,form);
+    }catch(e){console.error(e);onSkip();}
+    setBusy(false);
+  };
+
+  const purchaseTypes=[
+    {value:"pre-construction",label:"Pre-construction"},
+    {value:"resale",label:"Resale"},
+    {value:"refinance",label:"Refinance"},
+  ];
+  const isEdit=!!initial;
+
+  return(
+    <div className="overlay">
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-brand">own-ly</div>
+          <div className="modal-tagline">own your dream</div>
+          <h2>{isEdit?"Update your numbers":"Let's personalize your journey"}</h2>
+          <p className="msub">{isEdit?"Change anything and recalculate.":"Help us tailor the numbers to your situation. You can skip this."}</p>
+        </div>
+        <div className="form-section section-personal">
+          <div className="section-title">About You</div>
+          <div className="frow">
+            <div className="ff"><label>Your Name</label><input placeholder="e.g. Sara" value={form.name} onChange={uf("name")}/></div>
+            <div className="ff"><label>Location</label><input placeholder="GTA" value={form.loc} onChange={uf("loc")}/></div>
+          </div>
+        </div>
+        <div className="form-section section-financial">
+          <div className="section-title">Your Finances</div>
+          <div className="frow">
+            <div className="ff"><label>Annual Income ($)</label><input inputMode="decimal" placeholder="95000" value={form.income} onChange={ufNum("income")}/></div>
+            <div className="ff"><label>Down Payment ($)</label><input inputMode="decimal" placeholder="45000" value={form.dp} onChange={ufNum("dp")}/></div>
+          </div>
+        </div>
+        <div className="form-section section-property">
+          <div className="section-title">Property Details</div>
+          <div className="ff"><label>Target Home Price ($)</label><input inputMode="decimal" placeholder="700000" value={form.price} onChange={ufNum("price")}/></div>
+          <div className="ff" style={{marginTop:10}}>
+            <label>Purchase Type</label>
+            <div className="pill-group">
+              {purchaseTypes.map((pt)=>(<div key={pt.value} className={`pill ${form.type===pt.value?"selected":""}`} onClick={()=>setForm({...form,type:pt.value})}>{pt.label}</div>))}
+            </div>
+          </div>
+          <div className="ff" style={{marginTop:10}}>
+            <label>First-time Buyer?</label>
+            <div className="pill-group">
+              <div className={`pill ${form.ftb===true?"selected":""}`} onClick={()=>setForm({...form,ftb:true})}>Yes, first time</div>
+              <div className={`pill ${form.ftb===false?"selected":""}`} onClick={()=>setForm({...form,ftb:false})}>No, I've owned before</div>
+            </div>
+          </div>
+        </div>
+        <div className="form-section section-debts">
+          <div className="section-title">Existing Debts</div>
+          <DebtRow label="Car Loan" on={debts.car} amount={debts.carAmt}
+            onToggle={()=>setDebts(d=>({...d,car:!d.car,carAmt:d.car?"":d.carAmt}))}
+            onAmountChange={(v)=>setDebts(d=>({...d,carAmt:v}))}/>
+          <DebtRow label="Credit Card" on={debts.cc} amount={debts.ccAmt}
+            onToggle={()=>setDebts(d=>({...d,cc:!d.cc,ccAmt:d.cc?"":d.ccAmt}))}
+            onAmountChange={(v)=>setDebts(d=>({...d,ccAmt:v}))}/>
+          <DebtRow label="Student Loan" on={debts.stu} amount={debts.stuAmt}
+            onToggle={()=>setDebts(d=>({...d,stu:!d.stu,stuAmt:d.stu?"":d.stuAmt}))}
+            onAmountChange={(v)=>setDebts(d=>({...d,stuAmt:v}))}/>
+          <DebtRow label="Line of Credit" on={debts.loc2} amount={debts.locAmt}
+            onToggle={()=>setDebts(d=>({...d,loc2:!d.loc2,locAmt:d.loc2?"":d.locAmt}))}
+            onAmountChange={(v)=>setDebts(d=>({...d,locAmt:v}))}/>
+        </div>
+        <div className="modal-btns">
+          <button className="btn-skip" onClick={onSkip}>{isEdit?"Cancel":"Skip for now"}</button>
+          <button className="btn-go" onClick={submit} disabled={busy}>{busy?"Saving...":(isEdit?"Recalculate":"Start my journey")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ AFFORDABILITY RESULT ═══ */
+function AffordabilityResult({estimate,targetPrice,onContinue,onEditProfile}){
+  if(!estimate)return null;
+  const[showDetails,setShowDetails]=useState(false);
+  const maxPrice=estimate.estimated_max_price||0;
+  const target=targetPrice||0;
+  const gap=target>0?target-maxPrice:0;
+  const hasTarget=target>0;
+
+  let status="ok";
+  let statusText="";
+  if(hasTarget&&gap>0){
+    const overPct=gap/maxPrice;
+    if(overPct>0.10){
+      status="over";
+      statusText="Your target exceeds your current qualification by $"+Math.round(gap).toLocaleString()+". Consider increasing your down payment or reducing debts.";
+    }else{
+      status="stretch";
+      statusText="Your target is close -- just $"+Math.round(gap).toLocaleString()+" above your qualification. A small adjustment could close this gap.";
+    }
+  }else if(hasTarget){
+    statusText="Your target is within reach. You have $"+Math.round(Math.abs(gap)).toLocaleString()+" of headroom.";
+  }else{
+    statusText="This is the maximum home price you could qualify for under current Canadian mortgage rules.";
+  }
+
+  const fmt=(n)=>"$"+Math.round(n).toLocaleString();
+
+  return(
+    <div className="overlay">
+      <div className="modal" style={{width:440}}>
+        <div className="af-result">
+          <div className="modal-brand" style={{marginBottom:4}}>own-ly</div>
+          <div style={{fontSize:11,color:"var(--text-3)",letterSpacing:"1px",marginBottom:20}}>AFFORDABILITY SNAPSHOT</div>
+
+          <div style={{fontSize:13,color:"var(--text-2)",marginBottom:4}}>You can afford up to</div>
+          <div className={`af-big ${status}`}>{fmt(maxPrice)}</div>
+          <div className="af-subtitle">{estimate.amort_reason||""}</div>
+
+          {hasTarget&&(
+            <div className="af-compare">
+              <div className="af-card target">
+                <div className="af-card-label">Your Target</div>
+                <div className="af-card-val">{fmt(target)}</div>
+              </div>
+              <div className={`af-card ${gap>0?"gap":"qualify"}`}>
+                <div className="af-card-label">{gap>0?"Gap":"Headroom"}</div>
+                <div className="af-card-val">{gap>0?"-":"+"}{fmt(Math.abs(gap))}</div>
+              </div>
+            </div>
+          )}
+
+          <div className={`af-insight ${status}`}>{statusText}</div>
+
+          {/* Expandable details */}
+          <div style={{textAlign:"left",marginBottom:16}}>
+            <div style={{fontSize:12,color:"var(--blue)",cursor:"pointer",fontWeight:600,display:"flex",alignItems:"center",gap:4}} onClick={()=>setShowDetails(!showDetails)}>
+              <span style={{transform:showDetails?"rotate(90deg)":"rotate(0)",transition:"transform 0.2s",display:"inline-block"}}>&#9654;</span>
+              {showDetails?"Hide":"Show"} breakdown
+            </div>
+            {showDetails&&(
+              <div className="af-details" style={{marginTop:8}}>
+                <div className="af-row"><span className="af-row-label">Stress test rate</span><span className="af-row-val">{(estimate.stress_test_rate*100).toFixed(2)}%</span></div>
+                <div className="af-row"><span className="af-row-label">Max mortgage</span><span className="af-row-val">{fmt(estimate.estimated_max_mortgage)}</span></div>
+                <div className="af-row"><span className="af-row-label">Monthly payment (at stress)</span><span className="af-row-val">{fmt(estimate.monthly_payment_at_stress)}/mo</span></div>
+                {estimate.monthly_debts>0&&<div className="af-row"><span className="af-row-label">Monthly debts</span><span className="af-row-val" style={{color:"var(--coral)"}}>{fmt(estimate.monthly_debts)}/mo</span></div>}
+                <div className="af-row"><span className="af-row-label">GDS / TDS ratio</span><span className="af-row-val">{(estimate.gds_ratio*100).toFixed(1)}% / {(estimate.tds_ratio*100).toFixed(1)}%</span></div>
+                <div className="af-row"><span className="af-row-label">Limited by</span><span className="af-row-val">{estimate.limited_by}</span></div>
+                {estimate.is_insured&&estimate.insurance_premium&&<div className="af-row"><span className="af-row-label">CMHC premium</span><span className="af-row-val">{fmt(estimate.insurance_premium)}</span></div>}
+              </div>
+            )}
+          </div>
+
+          <div className="modal-btns">
+            <button className="btn-skip" onClick={onEditProfile}>Change numbers</button>
+            <button className="btn-go" onClick={onContinue}>Start learning</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ SIDEBAR ═══ */
+function Sidebar({show,onClose,onNewChat,onEditProfile,estimate,stagesData,activeStage,setActiveStage,onTopicClick}){
+  /* No locking -- all stages accessible per "users can jump to any topic" philosophy */
+  const stageStatus=(st)=>{const c=st.topics.filter(t=>t.covered).length;if(c===st.topics.length)return"done";if(c>0)return"partial";return"new";};
+  const totalTopics=stagesData.reduce((a,s)=>a+s.topics.length,0);
+  const coveredTopics=stagesData.reduce((a,s)=>a+s.topics.filter(t=>t.covered).length,0);
+  const progressPct=totalTopics>0?Math.round(coveredTopics/totalTopics*100):0;
+
+  /* Determine amortization eligibility text */
+  let amortText="";
+  if(estimate&&estimate.amort_reason){
+    amortText=estimate.amort_reason;
+  }
+
+  return(
+    <aside className={`side ${show?"":"hide"}`}>
+      <div className="side-head" style={{position:"relative"}}>
+        <div className="side-brand">own-ly</div>
+        <div className="side-sub">own your dream</div>
+        <button className="side-x" onClick={onClose}><CloseIcon/></button>
+      </div>
+      <div className="side-actions">
+        <button className="side-newchat" onClick={onNewChat}>New Chat</button>
+        <button className="side-editbtn" onClick={onEditProfile}><EditIcon/> Edit</button>
+      </div>
+      {estimate&&(
+        <div className="side-est">
+          <div className="est-card">
+            <div className="est-label">You qualify for up to</div>
+            <div className="est-val">${Number(estimate.estimated_max_price||0).toLocaleString()}</div>
+            {estimate.monthly_debts>0&&<div className="est-detail">Monthly debts: <span>${Number(estimate.monthly_debts).toLocaleString()}</span></div>}
+            {estimate.limited_by&&<div className="est-detail" style={{color:"var(--text-3)"}}>Limited by: {estimate.limited_by}</div>}
+            {amortText&&<div className="est-amort">{amortText}</div>}
+          </div>
+        </div>
+      )}
+      <div className="journey">
+        <div className="journey-label">Your Journey</div>
+        {stagesData.map((st,i)=>{
+          const isActive=st.id===activeStage;
+          const status=stageStatus(st);
+          const covCount=st.topics.filter(t=>t.covered).length;
+          const prevHasProgress=i>0&&stagesData[i-1].topics.some(t=>t.covered);
+          return(
+            <div className="stg" key={st.id}>
+              {i>0&&<div className={`stg-connector ${prevHasProgress?"done-line":""}`}/>}
+              <div className={["stg-row",isActive?"active":"",status==="done"?"done":"",status==="partial"?"partial":""].filter(Boolean).join(" ")} onClick={()=>setActiveStage(st.id)}>
+                <div className="stg-icon" style={isActive?{borderColor:st.color,color:st.color,background:st.bg}:status==="done"?{borderColor:"var(--teal)",background:"var(--teal)",color:"#fff"}:status==="partial"?{borderColor:st.color,color:st.color,background:st.bg}:{}}>{st.id}</div>
+                <div className="stg-info"><div className="stg-name">{st.name}</div><div className="stg-desc">{st.desc}</div></div>
+                <div className={`stg-badge ${status==="done"?"done":status==="partial"?"partial":"new"}`}>
+                  {status==="done"?"Done":status==="partial"?`${covCount}/${st.topics.length}`:`0/${st.topics.length}`}
+                </div>
+              </div>
+              {isActive&&(
+                <div className="topics">
+                  {st.topics.map(t=>(
+                    <div key={t.id} className={`topic ${t.covered?"covered":""}`} onClick={()=>onTopicClick(t.title)}>
+                      <div className="topic-dot"/><span>{t.title}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="side-progress">
+        <div className="prog-head"><span>Overall Progress</span><span>{coveredTopics}/{totalTopics}</span></div>
+        <div className="prog-track"><div className="prog-fill" style={{width:progressPct+"%"}}/></div>
+      </div>
+    </aside>
+  );
+}
+
+/* ═══ CHAT AREA ═══ */
+marked.setOptions({breaks:true,gfm:true});
+const renderMd=(t)=>t?marked.parse(t):"";
+
+function ChatArea({showSide,onToggleSide,onOpenSide,messages,loading,input,setInput,onSend}){
+  const endRef=useRef(null);
+  const inpRef=useRef(null);
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[messages,loading]);
+  const kd=(e)=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();onSend();}};
+  const ic=(e)=>{setInput(e.target.value);e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,120)+"px";};
+  const ts=(d)=>d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+  return(
+    <main className="main">
+      <div className="top">
+        <button className="top-menu" onClick={onToggleSide}><MenuIcon/></button>
+        <div className="top-title">Mortgage Educator</div>
+        <div className="top-status"><div className="top-dot"/>Online</div>
+      </div>
+      <div className="msgs-wrap">
+        <div className="msgs">
+          {messages.length===0?(
+            <div className="welcome">
+              <div className="welcome-badge">AI-Powered Mortgage Education</div>
+              <h1>Your home buying<br/>journey starts <em>here</em></h1>
+              <p>Personalized Canadian mortgage guidance. No jargon, no pressure, just clarity for first-time buyers.</p>
+              {/* Sidebar hint */}
+              <div className="side-hint" onClick={onOpenSide}>
+                <MenuIcon/> Track your learning journey in the sidebar
+              </div>
+              <div className="quick-cards">
+                {QUICK_CARDS.map((q,i)=>(
+                  <div key={i} className="qcard" onClick={()=>onSend(q.text)}>
+                    <div className="qcard-icon" style={{color:q.color,background:q.bg}}>{q.icon}</div>
+                    <div className="qcard-text">{q.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ):(
+            messages.map((m,i)=>(
+              <div key={i} className={`mrow ${m.role==="user"?"usr":""}`}>
+                <div className={`mav ${m.role==="user"?"usr":"ai"}`}>{m.role==="user"?"You":"O"}</div>
+                <div className="mbody">
+                  <div className={`mbub ${m.role==="user"?"usr":"ai"}`} dangerouslySetInnerHTML={{__html:renderMd(m.content)}}/>
+                  {m.topics&&m.topics.length>0&&(<div className="mtags">{m.topics.map(t=>(<span key={t.id} className="mtag">{t.title}</span>))}</div>)}
+                  <div className="mtime">{ts(m.time)}</div>
+                </div>
+              </div>
+            ))
+          )}
+          {loading&&(<div className="typing"><div className="mav ai">O</div><div className="tdots"><div className="tdot"/><div className="tdot"/><div className="tdot"/></div></div>)}
+          <div ref={endRef}/>
+        </div>
+      </div>
+      <div className="inp-area">
+        <div className="inp-wrap">
+          <textarea ref={inpRef} className="inp" rows={1} value={input} onChange={ic} onKeyDown={kd} placeholder="Ask about Canadian mortgages..." disabled={loading}/>
+          <button className="sendbtn" onClick={()=>onSend()} disabled={!input.trim()||loading}><SendIcon/></button>
+        </div>
+        <div className="inp-hint">Educational information only -- not financial advice. Enter to send.</div>
+      </div>
+    </main>
+  );
+}
+
+/* ═══ TOPIC MAPPING ═══ */
+/* Maps backend slugs -> UI topic IDs */
+const SLUG_TO_UI = {
+  "stress-test-b20":"t1","osfi-b21":"t1",
+  "fixed-rate":"t2","variable-rate":"t2",
+  "down-payment-requirements":"t3","cmhc-insurance":"t4",
+  "gds-tds-ratios":"t5","ltv":"t6",
+  "fhsa":"t7","hbp":"t7","fhsa-hbp":"t7",
+  "closing-costs":"t8",
+  "rate-hold":"t11","approval-process":"t12",
+  "hcra-builder":"t13","tarion-warranty":"t14",
+  "pre-construction-risks":"t15",
+  "ird-penalty":"t19",
+};
+/* Maps sidebar topic titles -> UI topic IDs (for direct click marking) */
+const TITLE_TO_UI = {};
+INIT_STAGES.forEach(s=>s.topics.forEach(t=>{TITLE_TO_UI[t.title]=t.id;}));
+
+/* ═══ APP ROOT ═══ */
+const API_BASE=window.location.origin+"/api";
+const postAPI=async(path,body)=>{const r=await fetch(API_BASE+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error(r.status);return r.json();};
+
+function deepCloneStages(stages){return stages.map(s=>({...s,topics:s.topics.map(t=>({...t}))}));}
+
+function App(){
+  const[showSide,setShowSide]=useState(window.innerWidth>768);
+  const[showOnboard,setShowOnboard]=useState(true);
+  const[showEditProfile,setShowEditProfile]=useState(false);
+  const[showAfResult,setShowAfResult]=useState(false);
+  const[uid,setUid]=useState(null);
+  const[sid,setSid]=useState(null);
+  const[msgs,setMsgs]=useState([]);
+  const[activeStage,setActiveStage]=useState(1);
+  const[stagesData,setStagesData]=useState(()=>deepCloneStages(INIT_STAGES));
+  const[input,setInput]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[estimate,setEstimate]=useState(null);
+  const[profileForm,setProfileForm]=useState(null);
+  const[targetPrice,setTargetPrice]=useState(null);
+
+  /* Mark a single UI topic by its ID */
+  const markTopicById=(topicId)=>{
+    setStagesData(prev=>{
+      const next=deepCloneStages(prev);
+      for(const stage of next){
+        const topic=stage.topics.find(t=>t.id===topicId);
+        if(topic&&!topic.covered){topic.covered=true;return next;}
+      }
+      return prev;/* no change */
+    });
+  };
+
+  /* Mark UI topics as covered based on backend response slugs */
+  const markTopicsCovered=(relevantTopics)=>{
+    if(!relevantTopics||relevantTopics.length===0)return;
+    setStagesData(prev=>{
+      const next=deepCloneStages(prev);
+      let changed=false;
+      for(const rt of relevantTopics){
+        const uiId=SLUG_TO_UI[rt.slug];
+        if(!uiId)continue;
+        for(const stage of next){
+          const topic=stage.topics.find(t=>t.id===uiId);
+          if(topic&&!topic.covered){topic.covered=true;changed=true;}
+        }
+      }
+      return changed?next:prev;
+    });
+  };
+
+  const send=useCallback(async(text)=>{
+    const m=text||input.trim();
+    if(!m||loading)return;
+    setInput("");
+    setMsgs(p=>[...p,{role:"user",content:m,time:new Date()}]);
+    setLoading(true);
+    try{
+      const body={message:m};
+      if(uid)body.user_id=uid;
+      if(sid)body.session_id=sid;
+      const r=await postAPI("/chat",body);
+      if(r.user_id)setUid(r.user_id);
+      if(r.session_id)setSid(r.session_id);
+      setMsgs(p=>[...p,{role:"assistant",content:r.message,time:new Date(),topics:r.relevant_topics||[]}]);
+      markTopicsCovered(r.relevant_topics);
+    }catch(e){
+      setMsgs(p=>[...p,{role:"assistant",content:"Something went wrong. Please try again.",time:new Date(),topics:[]}]);
+    }
+    setLoading(false);
+  },[input,loading,uid,sid]);
+
+  const handleOnboardDone=(userId,est,formData)=>{
+    setUid(userId);setEstimate(est);setShowOnboard(false);setShowEditProfile(false);
+    if(formData){
+      setProfileForm(formData);
+      setTargetPrice(formData.price?parseFloat(formData.price):null);
+    }
+    /* Show affordability result if we got an estimate */
+    if(est&&est.estimated_max_price>0){
+      setShowAfResult(true);
+    }
+  };
+
+  return(
+    <div className="app">
+      {showOnboard&&<Onboarding onDone={handleOnboardDone} onSkip={()=>setShowOnboard(false)}/>}
+      {showEditProfile&&<Onboarding initial={profileForm} onDone={handleOnboardDone} onSkip={()=>setShowEditProfile(false)}/>}
+      {showAfResult&&<AffordabilityResult estimate={estimate} targetPrice={targetPrice} onContinue={()=>setShowAfResult(false)} onEditProfile={()=>{setShowAfResult(false);setShowEditProfile(true);}}/>}
+      <div className={`backdrop ${showSide?"show":""}`} onClick={()=>setShowSide(false)}/>
+      <Sidebar show={showSide} onClose={()=>setShowSide(false)} onNewChat={()=>{setMsgs([]);setSid(null);}} onEditProfile={()=>setShowEditProfile(true)} estimate={estimate} stagesData={stagesData} activeStage={activeStage} setActiveStage={setActiveStage} onTopicClick={(title)=>{
+        /* Mark topic as covered immediately on click */
+        const uiId=TITLE_TO_UI[title];
+        if(uiId)markTopicById(uiId);
+        send("Tell me about: "+title);
+      }}/>
+      <ChatArea showSide={showSide} onToggleSide={()=>setShowSide(!showSide)} onOpenSide={()=>setShowSide(true)} messages={msgs} loading={loading} input={input} setInput={setInput} onSend={send}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
